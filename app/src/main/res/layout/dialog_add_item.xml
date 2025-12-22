@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Item Name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/item_name"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/edit_text_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_item_name"
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:layout_marginBottom="8dp" />
+
+    <!-- NEW: Suggestions ListView -->
+    <ListView
+        android:id="@+id/listview_suggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="200dp"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Quantity and Unit Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <!-- Quantity -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quantity"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/edit_text_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_quantity"
+                android:inputType="numberDecimal"
+                android:maxLines="1" />
+
+        </LinearLayout>
+
+        <!-- Unit -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unit"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <Spinner
+                android:id="@+id/spinner_unit"
+                android:layout_width="match_parent"
+                android:layout_height="48dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Category -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/category"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- NEW: Tilbud (OnOffer) Checkbox -->
+    <CheckBox
+        android:id="@+id/checkbox_on_offer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tilbud"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- NEW: Price Field (Initially Hidden) -->
+    <LinearLayout
+        android:id="@+id/layout_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pris"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/edit_text_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_pris"
+            android:inputType="numberDecimal"
+            android:maxLines="1" />
+
+    </LinearLayout>
+
+    <!-- Notes -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notes"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/edit_text_notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_notes"
+        android:inputType="textCapSentences|textMultiLine"
+        android:maxLines="3"
+        android:minLines="2" />
+
+</LinearLayout>

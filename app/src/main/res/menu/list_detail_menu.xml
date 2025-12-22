@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_clear_completed"
+        android:title="@string/clear_completed"
+        android:icon="@android:drawable/ic_menu_delete"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_sort"
+        android:title="@string/sort"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_sync"
+        android:title="@string/sync"
+        android:icon="@android:drawable/ic_popup_sync"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_reset_quick_items"
+        android:title="Nulstil hurtigvarer"
+        android:icon="@android:drawable/ic_menu_revert"
+        app:showAsAction="never" />
+
+</menu>

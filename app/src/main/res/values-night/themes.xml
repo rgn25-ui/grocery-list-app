@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cheerful Dark Theme (warm, not harsh) -->
+    <style name="Theme.GroceryListApp" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Warm orange primary -->
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>            <!-- Light Orange -->
+        <item name="colorPrimaryDark">#FF8A65</item>                             <!-- Medium Orange -->
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>        <!-- Dark Orange -->
+
+        <!-- Bright yellow secondary -->
+        <item name="colorSecondary">@color/md_theme_dark_secondary</item>        <!-- Bright Yellow -->
+        <item name="colorSecondaryVariant">#FFB300</item>                        <!-- Gold -->
+        <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>    <!-- Dark Yellow -->
+
+        <!-- Warm gray surfaces (not harsh black) -->
+        <item name="colorSurface">#3E2723</item>                                 <!-- Warm Dark Brown -->
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>        <!-- Light Text -->
+        <item name="colorSurfaceVariant">#4E342E</item>                          <!-- Medium Brown -->
+        <item name="colorOnSurfaceVariant">@color/md_theme_dark_onSurfaceVariant</item><!-- Light Gray -->
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/md_theme_dark_primary</item>
+
+        <!-- Disable window action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

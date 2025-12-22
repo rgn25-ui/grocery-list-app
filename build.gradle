@@ -1,0 +1,174 @@
+buildscript {
+    ext {
+        // Define versions for consistency across modules
+        kotlin_version = '1.9.10'
+        gradle_version = '8.1.2'
+        room_version = '2.6.0'
+        lifecycle_version = '2.7.0'
+        retrofit_version = '2.9.0'
+        rxjava_version = '3.1.8'
+        material_version = '1.10.0'
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+        // Add any other repositories you need here
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$gradle_version"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+
+        // Add any other classpath dependencies for build plugins here
+        // Example: classpath 'com.google.gms:google-services:4.3.15' (for Firebase)
+    }
+}
+
+// Apply plugins at the project level
+plugins {
+    // Android Application Plugin
+    id 'com.android.application' version '8.1.2' apply false
+
+    // Android Library Plugin (in case you add library modules later)
+    id 'com.android.library' version '8.1.2' apply false
+
+    // Add other plugins as needed
+    // Example: id 'com.google.gms.google-services' version '4.3.15' apply false
+}
+
+// Configuration applied to all projects (including root and sub-projects)
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // Add any additional repositories your dependencies need
+        // Example: maven { url 'https://jitpack.io' }
+    }
+
+    // Common configuration for all modules
+    configurations.all {
+        // Force consistent versions to avoid conflicts
+        resolutionStrategy {
+            // Force specific versions if needed
+            // force 'androidx.core:core:1.12.0'
+        }
+    }
+}
+
+// Subprojects configuration (applied only to sub-modules, not root)
+subprojects {
+    // Common configuration for all sub-modules
+    // This is where you can add configuration that applies to app module
+    // but not the root project
+}
+
+// Clean task to remove build directories
+task clean(type: Delete) {
+    delete rootProject.buildDir
+
+    // Also clean any additional directories if needed
+    // delete fileTree(dir: 'build', includes: ['**/*.tmp'])
+}
+
+// ===== ADDITIONAL CONFIGURATION OPTIONS =====
+
+// Project-wide properties
+ext {
+    // Minimum SDK versions
+    minSdkVersion = 24
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+
+    // Build tools version
+    buildToolsVersion = '34.0.0'
+
+    // App versioning
+    versionCode = 1
+    versionName = '1.0.0'
+
+    // Java version compatibility
+    javaVersion = JavaVersion.VERSION_1_8
+
+    // Common dependency versions (can be referenced in app/build.gradle)
+    versions = [
+            'appcompat'              : '1.6.1',
+            'constraintlayout'       : '2.1.4',
+            'recyclerview'           : '1.3.2',
+            'material'              : '1.10.0',
+            'core'                  : '1.12.0',
+            'lifecycle'             : '2.7.0',
+            'room'                  : '2.6.0',
+            'retrofit'              : '2.9.0',
+            'gson'                  : '2.10.1',
+            'okhttp'                : '4.12.0',
+            'rxjava'                : '3.1.8',
+            'rxandroid'             : '3.0.2',
+            'junit'                 : '4.13.2',
+            'ext_junit'             : '1.1.5',
+            'espresso'              : '3.5.1',
+            'swiperefreshlayout'    : '1.1.0',
+            'coordinatorlayout'     : '1.2.0',
+            'cardview'              : '1.0.0'
+    ]
+}
+
+// Gradle wrapper validation (ensures consistent Gradle version)
+wrapper {
+    gradleVersion = '8.0'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+// Custom tasks for project management
+task checkVersions {
+    doLast {
+        println "Project: ${rootProject.name}"
+        println "Gradle version: ${gradle.gradleVersion}"
+        println "Android Gradle Plugin version: ${gradle_version}"
+        println "Compile SDK: ${compileSdkVersion}"
+        println "Min SDK: ${minSdkVersion}"
+        println "Target SDK: ${targetSdkVersion}"
+    }
+}
+
+// Task to print dependency tree (useful for debugging)
+task printDependencyTree {
+    doLast {
+        configurations.forEach { config ->
+            if (config.canBeResolved) {
+                println "Configuration: ${config.name}"
+                config.resolvedConfiguration.firstLevelModuleDependencies.forEach { dep ->
+                    println "  ${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}"
+                }
+            }
+        }
+    }
+}
+
+// ===== CONDITIONAL CONFIGURATION =====
+
+// Different configurations for different build environments
+if (hasProperty('release')) {
+    // Release-specific configuration
+    ext {
+        enableProguard = true
+        enableSigning = true
+    }
+} else {
+    // Debug/development configuration
+    ext {
+        enableProguard = false
+        enableSigning = false
+    }
+}
+
+// ===== GRADLE PROPERTIES OVERRIDE =====
+
+// You can override properties from gradle.properties here if needed
+if (hasProperty('customBuildDir')) {
+    allprojects {
+        buildDir = "${rootProject.projectDir}/${customBuildDir}/${project.name}"
+    }
+}

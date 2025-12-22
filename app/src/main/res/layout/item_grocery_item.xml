@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- ENHANCED: Wider Category Color Indicator + Icon -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginEnd="12dp"
+        android:gravity="center">
+
+        <!-- Wider Category Color Bar (8dp instead of 4dp) -->
+        <View
+            android:id="@+id/category_indicator"
+            android:layout_width="8dp"
+            android:layout_height="48dp"
+            android:background="#FF9E9E9E"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Category Icon (Larger) -->
+        <ImageView
+            android:id="@+id/image_category_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            android:contentDescription="Category" />
+
+    </LinearLayout>
+
+    <!-- Checkbox -->
+    <CheckBox
+        android:id="@+id/checkbox_completed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Main Content -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Item Name Row with Category Badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Item Name -->
+            <TextView
+                android:id="@+id/text_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="Leverpostej" />
+
+            <!-- Offer Indicator (Keep existing) -->
+            <LinearLayout
+    android:id="@+id/layout_offer_indicator"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/offer_background"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="3dp"
+    android:visibility="gone"
+    android:layout_marginStart="8dp">
+
+    <!-- TILBUD Text -->
+    <TextView
+        android:id="@+id/text_tilbud_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TILBUD"
+        android:textSize="8sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginEnd="4dp" />
+
+    <!-- Price Text -->
+    <TextView
+        android:id="@+id/text_offer_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        tools:text="19,95 kr" />
+
+</LinearLayout>
+
+<!-- NEW: Category Badge -->
+            <TextView
+                android:id="@+id/text_category_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/category_badge_background"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="3dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                tools:text="PÅLÆG" />
+
+        </LinearLayout>
+
+        <!-- Quantity and Unit -->
+        <TextView
+            android:id="@+id/text_quantity_unit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            tools:text="1 pakke"
+            tools:visibility="visible" />
+
+        <!-- Notes -->
+        <TextView
+            android:id="@+id/text_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginTop="4dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:visibility="gone"
+            tools:text="God kvalitet"
+            tools:visibility="visible" />
+
+        <!-- Remove the old category row at bottom since we have the badge now -->
+
+    </LinearLayout>
+
+</LinearLayout>

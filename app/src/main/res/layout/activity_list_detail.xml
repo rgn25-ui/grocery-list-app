@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ListDetailActivity">
+
+    <!-- Main Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:title="List Details" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <!-- Quick Items Toggle Button -->
+                <Button
+                    android:id="@+id/btn_toggle_quick_items"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⬇ Hurtigvarer"
+                    android:textAllCaps="false"
+                    android:background="@color/quick_items_button_bg"
+                    android:textColor="@android:color/white"
+                    android:padding="12dp"
+                    android:drawableEnd="@android:drawable/arrow_down_float"
+                    android:gravity="center" />
+
+                <!-- Collapsible Quick Items Section -->
+                <LinearLayout
+                    android:id="@+id/layout_quick_items_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#F5F5F5"
+                    android:elevation="4dp"
+                    android:padding="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tryk for at tilføje:"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_quick_items"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:paddingBottom="8dp" />
+
+                </LinearLayout>
+
+                <!-- Existing Content -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_items"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="8dp"
+                        android:clipToPadding="false"
+                        tools:listitem="@layout/item_grocery_item" />
+
+                    <LinearLayout
+                        android:id="@+id/empty_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/empty_items"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/empty_items_subtitle"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurface"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Sync Info Display -->
+        <TextView
+            android:id="@+id/text_sync_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:background="#F5F5F5"
+            android:text="Sidst synkroniseret: Aldrig" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="Add item" />
+
+    </LinearLayout>
+
+    <!-- Loading Overlay - MUST BE LAST so it appears on top -->
+    <include layout="@layout/loading_overlay" />
+
+</FrameLayout>

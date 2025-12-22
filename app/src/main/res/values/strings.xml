@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Identity -->
+    <string name="app_name">Indkøbsliste</string>
+    <string name="app_subtitle">Din digitale indkøbsliste</string>
+
+    <!-- Main Actions -->
+    <string name="add_list">Tilføj Liste</string>
+    <string name="add_item">Tilføj Vare</string>
+    <string name="create">Opret</string>
+    <string name="update">Opdater</string>
+    <string name="delete">Slet</string>
+    <string name="edit">Rediger</string>
+    <string name="save">Gem</string>
+    <string name="cancel">Annuller</string>
+    <string name="ok">OK</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nej</string>
+
+    <!-- List Management -->
+    <string name="all_lists">Indkøbslister</string>
+    <string name="new_list">Opret ny indkøbsliste</string>
+    <string name="list_name">Listenavn</string>
+    <string name="rename_list">Omdøb indkøbsliste</string>
+    <string name="duplicate_list">Kopier Liste</string>
+    <string name="delete_list">Slet Liste</string>
+    <string name="clear_completed">Ryd Færdige</string>
+    <string name="clear_all_data">Ryd Alle Data</string>
+
+    <!-- Item Management -->
+    <string name="item_name">Varenavn</string>
+    <string name="quantity">Antal</string>
+    <string name="unit">Enhed</string>
+    <string name="notes">Noter</string>
+    <string name="category">Kategori</string>
+    <string name="add_new_item">Tilføj Ny Vare</string>
+    <string name="edit_item">Rediger Vare</string>
+
+    <!-- Counts and Status -->
+    <string name="no_items">Ingen varer</string>
+    <string name="one_item">1 vare</string>
+    <string name="multiple_items">%d varer</string>
+    <string name="items_completed">%d færdige</string>
+    <string name="loading_items">Indlæser varer…</string>
+    <string name="no_items_remaining">Færdig</string>              <!-- When 0 pending items -->
+    <string name="one_item_remaining">1 vare tilbage</string>      <!-- 1 pending item -->
+    <string name="multiple_items_remaining">%d varer tilbage</string> <!-- X pending items -->
+
+    <!-- Empty States -->
+    <string name="empty_lists">Ingen indkøbslister endnu</string>
+    <string name="empty_lists_subtitle">Opret din første indkøbsliste for at komme i gang</string>
+    <string name="empty_items">Ingen varer på denne liste</string>
+    <string name="empty_items_subtitle">Tryk + for at tilføje din første vare</string>
+
+    <!-- Sort Options -->
+    <string name="sort">Sorter</string>
+    <string name="sort_by">Sorter efter</string>
+    <string name="sort_priority">Prioritet</string>
+    <string name="sort_name">Navn</string>
+    <string name="sort_rema1000">Rema1000</string>
+    <string name="sort_date">Dato tilføjet</string>
+    <string name="sorted_by_priority">Sorteret efter prioritet</string>
+    <string name="sorted_alphabetically">Sorteret alfabetisk</string>
+    <string name="sorted_by_rema1000">Sorteret som i Rema1000 butik 🛒</string>
+    <string name="sorted_by_date">Sorteret efter dato</string>
+
+    <!-- Sync -->
+    <string name="sync">Synkroniser</string>
+    <string name="syncing_all_data">Synkroniserer alle data…</string>
+    <string name="sync_completed_successfully">Synkronisering gennemført med succes</string>
+
+    <!-- Clear All Data -->
+    <string name="clear_all_data_title">⚠️ Ryd Alle Data</string>
+    <string name="clear_all_data_message">Dette vil permanent slette ALLE indkøbslister og varer fra:\n\n• Denne enhed\n• Cloud-lagring\n• Alle andre enheder\n\nDenne handling kan ikke fortrydes!</string>
+    <string name="clear_everything">Ryd Alt</string>
+    <string name="final_confirmation">⚠️ Sidste Bekræftelse</string>
+    <string name="final_confirmation_message">Sidste chance!\n\nDette vil slette ALT og kan ikke fortrydes.\n\nSkriv \'SLET\' for at bekræfte:</string>
+    <string name="type_delete_to_confirm">Skriv SLET for at bekræfte</string>
+    <string name="delete_all_data">Slet Alle Data</string>
+    <string name="clearing_all_data">Rydder alle data…</string>
+    <string name="all_data_cleared">Alle data ryddet med succes</string>
+    <string name="deletion_cancelled">Sletning annulleret - bekræftelsestekst matchede ikke</string>
+
+    <!-- Input Hints -->
+    <string name="hint_list_name">Indtast listenavn</string>
+    <string name="hint_item_name">Indtast varenavn</string>
+    <string name="hint_quantity">Antal</string>
+    <string name="hint_notes">Valgfrie noter om denne vare</string>
+    <string name="hint_notes_short">Noter (valgfri)</string>
+
+    <!-- Context Menu -->
+    <string name="rename">Omdøb</string>
+    <string name="duplicate">Kopier</string>
+
+    <!-- Undo -->
+    <string name="undo">Fortryd</string>
+
+    <string name="tilbud">Tilbud</string>
+    <string name="tilbud_label">TILBUD</string>
+    <string name="pris">Pris</string>
+    <string name="hint_pris">Indtast pris (kr)</string>
+    <string name="on_offer">På tilbud</string>
+    <string name="regular_price">Normal pris</string>
+    <string name="offer_price">Tilbudspris</string>
+
+    <string name="mark_as_complete">Marker som færdig</string>
+    <string name="mark_as_incomplete">Marker som ikke færdig</string>
+
+    <!-- Quick Items (NEW SECTION) -->
+    <string name="quick_items_collapsed">⬇ Hurtigvarer</string>
+    <string name="quick_items_expanded">⬆ Hurtigvarer</string>
+    <string name="add_to_quick_items">Tilføj som hurtigvare</string>
+    <string name="remove_quick_item_title">Fjern hurtigvare?</string>
+    <string name="remove_quick_item_message">Vil du fjerne \"%1$s\" fra hurtigvarer?</string>
+    <string name="remove">Fjern</string>
+    <string name="added_to_quick_items">%1$s tilføjet til hurtigvarer</string>
+    <string name="removed_from_quick_items">%1$s fjernet fra hurtigvarer</string>
+    <string name="max_quick_items_reached">Max antal hurtigvarer nået (20)</string>
+    <string name="reset_quick_items_title">Nulstil hurtigvarer?</string>
+    <string name="reset_quick_items_message">Dette vil gendanne standardlisten af hurtigvarer og fjerne alle dine tilpassede varer.</string>
+    <string name="reset">Nulstil</string>
+    <string name="quick_items_reset">Hurtigvarer nulstillet til standard</string>
+
+    <!-- Item Operations (NEW) -->
+    <string name="item_added">%1$s tilføjet</string>
+    <string name="item_deleted">Vare slettet</string>
+    <string name="list_deleted">Liste slettet</string>
+
+    <!-- Sorting (NEW - supplements existing) -->
+    <string name="sorted">Sorteret</string>
+
+    <!-- Clear Completed -->
+    <string name="clear_completed_message">Fjern alle færdige varer fra denne liste?</string>
+
+    <!-- Dialog Labels -->
+    <string name="store_label">Butik:</string>
+    <string name="list_name_label">Listenavn:</string>
+
+    <!-- Default Values -->
+    <string name="default_list_name">Indkøbsliste</string>
+    <string name="list_name_copy_suffix"> (Kopi)</string>
+
+    <!-- Validation -->
+    <string name="item_name_required">Varenavn er påkrævet</string>
+
+    <!-- Sync Status -->
+    <string name="never_synced">Aldrig synkroniseret</string>
+    <string name="last_synced">Sidst synkroniseret: %1$s (%2$s)</string>
+
+    <!-- Error Messages -->
+    <string name="suggestions_load_error">Kunne ikke indlæse vareforslag</string>
+
+    <!-- Titles with Emoji -->
+    <string name="all_lists_with_icon">📋 %1$s</string>
+    <string name="new_list_with_icon">📝 %1$s</string>
+
+
+    <!-- DANISH UNITS ARRAY -->
+    <string-array name="units_array">
+        <item>stk</item>        <!-- Default option -->
+        <item>kg</item>
+        <item>L</item>
+        <item>pakke</item>
+    </string-array>
+
+</resources>
