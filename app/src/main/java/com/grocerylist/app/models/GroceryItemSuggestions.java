@@ -19,10 +19,11 @@ import java.util.List;
  */
 public class GroceryItemSuggestions {
 
+    private static final String TAG = "GroceryApp";
+
     public static class Suggestion {
         public final String title;
         public final String categoryDisplay;
-
         public Suggestion(String title, String categoryDisplay) {
             this.title = title;
             this.categoryDisplay = categoryDisplay;
@@ -67,10 +68,10 @@ public class GroceryItemSuggestions {
             reader.close();
             isInitialized = true;
 
-            android.util.Log.d("GroceryApp", "✅ Loaded " + SUGGESTIONS.size() + " grocery suggestions");
+            android.util.Log.d(TAG, "✅ Loaded " + SUGGESTIONS.size() + " grocery suggestions");
 
         } catch (Exception e) {
-            android.util.Log.e("GroceryApp", "❌ Failed to load grocery suggestions", e);
+            android.util.Log.e(TAG, "❌ Failed to load grocery suggestions", e);
             // Fallback to empty list
             SUGGESTIONS = new ArrayList<>();
             isInitialized = true;
@@ -85,7 +86,7 @@ public class GroceryItemSuggestions {
      */
     public static List<Suggestion> getSuggestions(String query, int limit) {
         if (!isInitialized || SUGGESTIONS == null) {
-            android.util.Log.w("GroceryApp", "⚠️ Suggestions not initialized yet");
+            android.util.Log.w(TAG, "⚠️ Suggestions not initialized yet");
             return Collections.emptyList();
         }
 

@@ -26,6 +26,8 @@ import com.grocerylist.app.models.GroceryList;
 import com.grocerylist.app.ui.dialogs.ListDialogManager;
 import com.grocerylist.app.viewmodel.GroceryViewModel;
 
+import java.util.List;
+
 /**
  * Main activity displaying all grocery lists
  * Refactored to use ListDialogManager for cleaner separation of concerns
@@ -164,48 +166,48 @@ public class MainActivity extends AppCompatActivity {
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerViewLists);
     }
 
+
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(GroceryViewModel.class);
 
-        // Observe lists
-        viewModel.getAllLists().observe(this, lists -> {
-            adapter.submitList(lists);
-            emptyView.setVisibility(lists == null || lists.isEmpty() ? View.VISIBLE : View.GONE);
-        });
+        viewModel.getAllLists().observe(this, this::onListsChanged);
+        viewModel.getError().observe(this, this::onError);
+        viewModel.getSyncStatus().observe(this, this::onSyncStatus);
+        viewModel.getIsRefreshing().observe(this, this::onRefreshingChanged);
 
-        // Observe errors
-        viewModel.getError().observe(this, error -> {
-            if (error != null) {
-                Snackbar.make(recyclerViewLists, error, Snackbar.LENGTH_LONG).show();
-            }
-        });
-
-        // Observe sync status
-        viewModel.getSyncStatus().observe(this, status -> {
-            if (status != null) {
-                Snackbar.make(recyclerViewLists, status, Snackbar.LENGTH_SHORT).show();
-            }
-        });
-
-        // Observe refresh state
-        viewModel.getIsRefreshing().observe(this, isRefreshing -> {
-            if (swipeRefresh != null) {
-                swipeRefresh.setRefreshing(isRefreshing != null ? isRefreshing : false);
-            }
-
-            if (isRefreshing != null && isRefreshing) {
-                loadingMessageManager.show();
-            } else {
-                loadingMessageManager.hide();
-            }
-
-            if (isRefreshing != null && !isRefreshing) {
-                updateSyncInfo();
-            }
-        });
-
-        // Initial sync info display
         updateSyncInfo();
+    }
+
+    private void onListsChanged(List<GroceryList> lists) {
+        adapter.submitList(lists);
+        emptyView.setVisibility(lists == null || lists.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void onError(String error) {
+        if (error != null) {
+            Snackbar.make(recyclerViewLists, error, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    private void onSyncStatus(String status) {
+        if (status != null) {
+            Snackbar.make(recyclerViewLists, status, Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    private void onRefreshingChanged(Boolean isRefreshing) {
+        boolean refreshing = Boolean.TRUE.equals(isRefreshing);
+
+        if (swipeRefresh != null) {
+            swipeRefresh.setRefreshing(refreshing);
+        }
+
+        if (refreshing) {
+            loadingMessageManager.show();
+        } else {
+            loadingMessageManager.hide();
+            updateSyncInfo();
+        }
     }
 
     private void setupFab() {

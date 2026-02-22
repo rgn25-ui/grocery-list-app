@@ -3,7 +3,6 @@ package com.grocerylist.app.fragments;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -18,6 +17,7 @@ import com.grocerylist.app.models.Category;
 import com.grocerylist.app.models.GroceryItem;
 import com.grocerylist.app.ui.dialogs.ItemDialogHelper;
 import com.grocerylist.app.utils.CategoryPredictor;
+import com.grocerylist.app.utils.SimpleTextWatcher;
 
 /**
  * Dialog for editing an existing grocery item
@@ -151,10 +151,7 @@ public class EditItemDialogFragment extends DialogFragment {
         });
 
         // Text watcher for autocomplete and category prediction
-        views.editTextName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+        views.editTextName.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (views.editTextName.hasFocus()) {

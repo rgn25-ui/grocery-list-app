@@ -34,6 +34,8 @@ import com.grocerylist.app.viewmodel.GroceryViewModel;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.util.List;
+
 /**
  * Activity for displaying and managing items within a grocery list
  * Refactored to use handler classes for better separation of concerns
@@ -108,46 +110,48 @@ public class ListDetailActivity extends AppCompatActivity {
         }
     }
 
+
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(GroceryViewModel.class);
 
-        // Observe items for this list
-        viewModel.getItemsForList(currentListId).observe(this, items -> {
-            adapter.submitList(items);
-            emptyView.setVisibility(items == null || items.isEmpty() ? View.VISIBLE : View.GONE);
-        });
-
-        // Observe errors
-        viewModel.getError().observe(this, error -> {
-            if (error != null) {
-                Snackbar.make(recyclerViewItems, error, Snackbar.LENGTH_LONG).show();
-            }
-        });
-
-        // Observe sync status
-        viewModel.getSyncStatus().observe(this, status -> {
-            if (status != null) {
-                Snackbar.make(recyclerViewItems, status, Snackbar.LENGTH_SHORT).show();
-            }
-        });
-
-        viewModel.getIsRefreshing().observe(this, isRefreshing -> {
-            if (swipeRefresh != null) {
-                swipeRefresh.setRefreshing(isRefreshing != null ? isRefreshing : false);
-            }
-
-            if (isRefreshing != null && isRefreshing) {
-                loadingMessageManager.show();
-            } else {
-                loadingMessageManager.hide();
-            }
-
-            if (isRefreshing != null && !isRefreshing) {
-                updateSyncInfo();
-            }
-        });
+        viewModel.getItemsForList(currentListId).observe(this, this::onItemsChanged);
+        viewModel.getError().observe(this, this::onError);
+        viewModel.getSyncStatus().observe(this, this::onSyncStatus);
+        viewModel.getIsRefreshing().observe(this, this::onRefreshingChanged);
 
         updateSyncInfo();
+    }
+
+    private void onItemsChanged(List<GroceryItem> items) {
+        adapter.submitList(items);
+        emptyView.setVisibility(items == null || items.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void onError(String error) {
+        if (error != null) {
+            Snackbar.make(recyclerViewItems, error, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    private void onSyncStatus(String status) {
+        if (status != null) {
+            Snackbar.make(recyclerViewItems, status, Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    private void onRefreshingChanged(Boolean isRefreshing) {
+        boolean refreshing = Boolean.TRUE.equals(isRefreshing);
+
+        if (swipeRefresh != null) {
+            swipeRefresh.setRefreshing(refreshing);
+        }
+
+        if (refreshing) {
+            loadingMessageManager.show();
+        } else {
+            loadingMessageManager.hide();
+            updateSyncInfo();
+        }
     }
 
     private void setupRecyclerView() {

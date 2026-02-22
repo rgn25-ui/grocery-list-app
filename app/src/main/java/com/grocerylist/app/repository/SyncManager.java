@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  * Handles sync timing, conflict resolution, and merge logic
  */
 public class SyncManager {
+    private static final String TAG = "GrocerySync";
     private static final String PREF_LAST_SYNC_DURATION = "last_sync_duration";
     private static final long MIN_SYNC_INTERVAL_MS = 20000; // 20 seconds
     private final LocalDataSource localDataSource;
@@ -47,7 +48,7 @@ public class SyncManager {
         long timeSinceLastSync = System.currentTimeMillis() - lastSync;
 
         if (timeSinceLastSync < MIN_SYNC_INTERVAL_MS) {
-            android.util.Log.d("GrocerySync", "⏭️ Skipping sync - synced " + timeSinceLastSync + "ms ago");
+            android.util.Log.d(TAG, "⏭️ Skipping sync - synced " + timeSinceLastSync + "ms ago");
             listener.onSuccess();
             return;
         }
@@ -60,7 +61,7 @@ public class SyncManager {
      */
     public void forceFullSync(String userId, OnSyncListener listener) {
         long startTime = System.currentTimeMillis();
-        android.util.Log.d("GrocerySync", "🔄 Starting full sync...");
+        android.util.Log.d(TAG, "🔄 Starting full sync...");
 
         remoteDataSource.getDisposables().add(
                 remoteDataSource.getAllData(userId)
@@ -69,8 +70,8 @@ public class SyncManager {
                         .subscribe(
                                 syncData -> {
                                     long networkTime = System.currentTimeMillis() - startTime;
-                                    android.util.Log.d("GrocerySync", "✅ Network call completed in " + networkTime + "ms");
-                                    android.util.Log.d("GrocerySync", "📦 Received " +
+                                    android.util.Log.d(TAG, "✅ Network call completed in " + networkTime + "ms");
+                                    android.util.Log.d(TAG, "📦 Received " +
                                             (syncData.getLists() != null ? syncData.getLists().size() : 0) + " lists, " +
                                             (syncData.getItems() != null ? syncData.getItems().size() : 0) + " items");
 
@@ -97,21 +98,21 @@ public class SyncManager {
                                                     .putLong(PREF_LAST_SYNC_DURATION, totalTime)
                                                     .apply();
 
-                                            android.util.Log.d("GrocerySync", "💾 Database save completed in " + dbTime + "ms");
-                                            android.util.Log.d("GrocerySync", "✅ Total sync time: " + totalTime + "ms");
+                                            android.util.Log.d(TAG, "💾 Database save completed in " + dbTime + "ms");
+                                            android.util.Log.d(TAG, "✅ Total sync time: " + totalTime + "ms");
 
                                             // Call listener on main thread
                                             runOnMainThread(listener::onSuccess);
 
                                         } catch (Exception e) {
-                                            android.util.Log.e("GrocerySync", "❌ Sync failed", e);
+                                            android.util.Log.e(TAG, "❌ Sync failed", e);
                                             runOnMainThread(() -> listener.onError(e));
                                         }
                                     }).start();
                                 },
                                 throwable -> {
                                     long failTime = System.currentTimeMillis() - startTime;
-                                    android.util.Log.e("GrocerySync", "❌ Sync failed after " + failTime + "ms");
+                                    android.util.Log.e(TAG, "❌ Sync failed after " + failTime + "ms");
                                     listener.onError((Exception) throwable);
                                 }
                         )
@@ -148,7 +149,7 @@ public class SyncManager {
             }
         }
 
-        android.util.Log.d("GrocerySync", "📋 Lists: " + inserted + " inserted, " + updated + " updated, " + skipped + " skipped");
+        android.util.Log.d(TAG, "📋 Lists: " + inserted + " inserted, " + updated + " updated, " + skipped + " skipped");
     }
 
     /**
@@ -179,7 +180,7 @@ public class SyncManager {
             }
         }
 
-        android.util.Log.d("GrocerySync", "🛒 Items: " + inserted + " inserted, " + updated + " updated, " + skipped + " skipped");
+        android.util.Log.d(TAG, "🛒 Items: " + inserted + " inserted, " + updated + " updated, " + skipped + " skipped");
     }
 
     // ===== HELPER METHODS =====
