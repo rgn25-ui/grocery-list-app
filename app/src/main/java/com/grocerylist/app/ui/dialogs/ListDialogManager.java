@@ -49,7 +49,7 @@ public class ListDialogManager {
                 ListCategory.REMA
         );
 
-        builder.setView(components.layout);
+        builder.setView(components.getLayout());
 
         builder.setPositiveButton(context.getString(R.string.create), (dialog, which) -> {
             String name = components.getName();
@@ -82,7 +82,7 @@ public class ListDialogManager {
                 initialCategory
         );
 
-        builder.setView(components.layout);
+        builder.setView(components.getLayout());
 
         builder.setPositiveButton(context.getString(R.string.duplicate), (dialog, which) -> {
             String name = components.getName();
@@ -124,7 +124,7 @@ public class ListDialogManager {
                 initialCategory
         );
 
-        builder.setView(components.layout);
+        builder.setView(components.getLayout());
 
         builder.setPositiveButton(context.getString(R.string.rename), (dialog, which) -> {
             String name = components.getName();

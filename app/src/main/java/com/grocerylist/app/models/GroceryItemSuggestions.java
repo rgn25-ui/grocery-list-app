@@ -21,6 +21,10 @@ public class GroceryItemSuggestions {
 
     private static final String TAG = "GroceryApp";
 
+    private GroceryItemSuggestions() {
+        // Utility class - instantiation not allowed
+    }
+
     public static class Suggestion {
         public final String title;
         public final String categoryDisplay;
@@ -30,7 +34,7 @@ public class GroceryItemSuggestions {
         }
     }
 
-    private static List<Suggestion> SUGGESTIONS = null;
+    private static List<Suggestion> suggestions = null;
     private static boolean isInitialized = false;
 
     /**
@@ -60,20 +64,20 @@ public class GroceryItemSuggestions {
             List<JsonSuggestion> jsonSuggestions = gson.fromJson(reader, listType);
 
             // Convert to Suggestion objects
-            SUGGESTIONS = new ArrayList<>();
+            suggestions = new ArrayList<>();
             for (JsonSuggestion jsonSuggestion : jsonSuggestions) {
-                SUGGESTIONS.add(new Suggestion(jsonSuggestion.title, jsonSuggestion.category));
+                suggestions.add(new Suggestion(jsonSuggestion.title, jsonSuggestion.category));
             }
 
             reader.close();
             isInitialized = true;
 
-            android.util.Log.d(TAG, "✅ Loaded " + SUGGESTIONS.size() + " grocery suggestions");
+            android.util.Log.d(TAG, "✅ Loaded " + suggestions.size() + " grocery suggestions");
 
         } catch (Exception e) {
             android.util.Log.e(TAG, "❌ Failed to load grocery suggestions", e);
             // Fallback to empty list
-            SUGGESTIONS = new ArrayList<>();
+            suggestions = new ArrayList<>();
             isInitialized = true;
         }
     }
@@ -85,7 +89,7 @@ public class GroceryItemSuggestions {
      * @return List of matching suggestions
      */
     public static List<Suggestion> getSuggestions(String query, int limit) {
-        if (!isInitialized || SUGGESTIONS == null) {
+        if (!isInitialized || suggestions == null) {
             android.util.Log.w(TAG, "⚠️ Suggestions not initialized yet");
             return Collections.emptyList();
         }
@@ -97,7 +101,7 @@ public class GroceryItemSuggestions {
         String lowerQuery = query.toLowerCase();
         List<Suggestion> filtered = new ArrayList<>();
 
-        for (Suggestion suggestion : SUGGESTIONS) {
+        for (Suggestion suggestion : suggestions) {
             if (suggestion.title.toLowerCase().contains(lowerQuery)) {
                 filtered.add(suggestion);
             }

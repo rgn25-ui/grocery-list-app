@@ -26,9 +26,11 @@ public class DialogHelper {
      * Provides convenient access to dialog inputs and selected values
      */
     public static class ListDialogComponents {
-        public LinearLayout layout;
-        public Spinner categorySpinner;
-        public EditText nameInput;
+        LinearLayout layout;
+        Spinner categorySpinner;
+        EditText nameInput;
+
+        public LinearLayout getLayout() { return layout; }
 
         /**
          * Get the currently selected list category from the spinner

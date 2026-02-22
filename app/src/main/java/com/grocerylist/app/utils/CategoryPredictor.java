@@ -11,6 +11,10 @@ public class CategoryPredictor {
     private static final Map<String, Category> KEYWORD_MAP = new HashMap<>();
     private static final List<String> SORTED_KEYWORDS = new ArrayList<>();
 
+    private CategoryPredictor() {
+        // Utility class - instantiation not allowed
+    }
+
     static {
         // BROED (Bread)
         addKeywords(Category.BROED, "rugbrød", "rundstykker", "toast", "bagel", "croissant",

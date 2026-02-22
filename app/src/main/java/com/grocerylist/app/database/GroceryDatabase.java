@@ -17,13 +17,13 @@ public abstract class GroceryDatabase extends RoomDatabase {
 
     public abstract GroceryDao groceryDao();
 
-    private static volatile GroceryDatabase INSTANCE;
+    private static volatile GroceryDatabase instance;
 
     public static GroceryDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
+        if (instance == null) {
             synchronized (GroceryDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
                                     context.getApplicationContext(),
                                     GroceryDatabase.class,
                                     Constants.DATABASE_NAME
@@ -33,6 +33,6 @@ public abstract class GroceryDatabase extends RoomDatabase {
                 }
             }
         }
-        return INSTANCE;
+        return instance;
     }
 }

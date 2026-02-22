@@ -52,12 +52,12 @@ public class AddItemDialogFragment extends DialogFragment {
         setupCategoryPrediction();
 
         // Set default values
-        views.editTextQuantity.setText("1");
+        views.getEditTextQuantity().setText("1");
 
         builder.setView(dialogView)
                 .setTitle(getString(R.string.add_new_item))
                 .setPositiveButton(getString(R.string.add_item), (dialog, which) -> {
-                    if (ItemDialogHelper.validateItemName(requireContext(), views.editTextName)) {
+                    if (ItemDialogHelper.validateItemName(requireContext(), views.getEditTextName())) {
                         createAndReturnItem();
                     }
                 })
@@ -72,55 +72,55 @@ public class AddItemDialogFragment extends DialogFragment {
                 views,
                 suggestion -> {
                     // Apply suggestion
-                    views.editTextName.setText(suggestion.title);
-                    views.editTextName.setSelection(suggestion.title.length());
-                    views.listViewSuggestions.setVisibility(View.GONE);
+                    views.getEditTextName().setText(suggestion.title);
+                    views.getEditTextName().setSelection(suggestion.title.length());
+                    views.getListViewSuggestions().setVisibility(View.GONE);
 
                     // Predict category
                     Category predicted = CategoryPredictor.predictCategory(suggestion.title);
-                    views.spinnerCategory.setSelection(predicted.ordinal());
+                    views.getSpinnerCategory().setSelection(predicted.ordinal());
                 }
         );
 
         // Text watcher for autocomplete
-        views.editTextName.addTextChangedListener(new SimpleTextWatcher() {
+        views.getEditTextName().addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 ItemDialogHelper.handleSuggestionQuery(
                         s.toString().trim(),
                         suggestionAdapter,
-                        views.listViewSuggestions
+                        views.getListViewSuggestions()
                 );
             }
         });
     }
 
     private void setupCategoryPrediction() {
-        views.editTextName.addTextChangedListener(new SimpleTextWatcher() {
+        views.getEditTextName().addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 String itemName = s.toString().trim();
                 if (!itemName.isEmpty()) {
                     Category predicted = CategoryPredictor.predictCategory(itemName);
-                    views.spinnerCategory.setSelection(predicted.ordinal());
+                    views.getSpinnerCategory().setSelection(predicted.ordinal());
                 }
             }
         });
     }
 
     private void createAndReturnItem() {
-        String name = views.editTextName.getText().toString().trim();
-        String quantity = views.editTextQuantity.getText().toString().trim();
-        String unit = views.spinnerUnit.getSelectedItem().toString();
-        String notes = views.editTextNotes.getText().toString().trim();
-        String price = views.editTextPrice.getText().toString().trim();
-        boolean onOffer = views.checkBoxOnOffer.isChecked();
+        String name = views.getEditTextName().getText().toString().trim();
+        String quantity = views.getEditTextQuantity().getText().toString().trim();
+        String unit = views.getSpinnerUnit().getSelectedItem().toString();
+        String notes = views.getEditTextNotes().getText().toString().trim();
+        String price = views.getEditTextPrice().getText().toString().trim();
+        boolean onOffer = views.getCheckBoxOnOffer().isChecked();
 
         if (quantity.isEmpty()) {
             quantity = "1";
         }
 
-        Category selectedCategory = Category.values()[views.spinnerCategory.getSelectedItemPosition()];
+        Category selectedCategory = Category.values()[views.getSpinnerCategory().getSelectedItemPosition()];
 
         GroceryItem newItem = new GroceryItem();
         newItem.setName(name);

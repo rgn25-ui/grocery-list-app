@@ -87,7 +87,7 @@ public class EditItemDialogFragment extends DialogFragment {
         builder.setView(dialogView)
                 .setTitle(getString(R.string.edit_item))
                 .setPositiveButton(getString(R.string.update), (dialog, which) -> {
-                    if (ItemDialogHelper.validateItemName(requireContext(), views.editTextName)) {
+                    if (ItemDialogHelper.validateItemName(requireContext(), views.getEditTextName())) {
                         updateAndReturnItem();
                     }
                 })
@@ -128,37 +128,37 @@ public class EditItemDialogFragment extends DialogFragment {
                 views,
                 suggestion -> {
                     // Apply suggestion
-                    views.editTextName.setText(suggestion.title);
-                    views.editTextName.setSelection(suggestion.title.length());
-                    views.listViewSuggestions.setVisibility(View.GONE);
+                    views.getEditTextName().setText(suggestion.title);
+                    views.getEditTextName().setSelection(suggestion.title.length());
+                    views.getListViewSuggestions().setVisibility(View.GONE);
 
                     // Predict category
                     Category predicted = CategoryPredictor.predictCategory(suggestion.title);
-                    views.spinnerCategory.setSelection(predicted.ordinal());
+                    views.getSpinnerCategory().setSelection(predicted.ordinal());
                 }
         );
 
         // Focus listener to hide suggestions when focus lost
-        views.editTextName.setOnFocusChangeListener((v, hasFocus) -> {
+        views.getEditTextName().setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                views.listViewSuggestions.setVisibility(View.GONE);
+                views.getListViewSuggestions().setVisibility(View.GONE);
             } else {
-                String text = views.editTextName.getText().toString().trim();
+                String text = views.getEditTextName().getText().toString().trim();
                 if (text.length() >= 3) {
-                    ItemDialogHelper.handleSuggestionQuery(text, suggestionAdapter, views.listViewSuggestions);
+                    ItemDialogHelper.handleSuggestionQuery(text, suggestionAdapter, views.getListViewSuggestions());
                 }
             }
         });
 
         // Text watcher for autocomplete and category prediction
-        views.editTextName.addTextChangedListener(new SimpleTextWatcher() {
+        views.getEditTextName().addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (views.editTextName.hasFocus()) {
+                if (views.getEditTextName().hasFocus()) {
                     ItemDialogHelper.handleSuggestionQuery(
                             s.toString().trim(),
                             suggestionAdapter,
-                            views.listViewSuggestions
+                            views.getListViewSuggestions()
                     );
                 }
             }
@@ -168,7 +168,7 @@ public class EditItemDialogFragment extends DialogFragment {
                 String query = s.toString().trim();
                 if (!query.isEmpty()) {
                     Category predicted = CategoryPredictor.predictCategory(query);
-                    views.spinnerCategory.setSelection(predicted.ordinal());
+                    views.getSpinnerCategory().setSelection(predicted.ordinal());
                 }
             }
         });
@@ -179,18 +179,18 @@ public class EditItemDialogFragment extends DialogFragment {
             return;
         }
 
-        views.editTextName.setText(currentItem.getName());
-        views.editTextQuantity.setText(currentItem.getQuantity());
-        views.editTextNotes.setText(currentItem.getNotes());
-        views.editTextPrice.setText(currentItem.getPrice());
-        views.checkBoxOnOffer.setChecked(currentItem.isOnOffer());
-        views.layoutPrice.setVisibility(currentItem.isOnOffer() ? View.VISIBLE : View.GONE);
+        views.getEditTextName().setText(currentItem.getName());
+        views.getEditTextQuantity().setText(currentItem.getQuantity());
+        views.getEditTextNotes().setText(currentItem.getNotes());
+        views.getEditTextPrice().setText(currentItem.getPrice());
+        views.getCheckBoxOnOffer().setChecked(currentItem.isOnOffer());
+        views.getLayoutPrice().setVisibility(currentItem.isOnOffer() ? View.VISIBLE : View.GONE);
 
         // Set unit spinner selection
         String[] units = getResources().getStringArray(R.array.units_array);
         for (int i = 0; i < units.length; i++) {
             if (units[i].equals(currentItem.getUnit())) {
-                views.spinnerUnit.setSelection(i);
+                views.getSpinnerUnit().setSelection(i);
                 break;
             }
         }
@@ -198,9 +198,9 @@ public class EditItemDialogFragment extends DialogFragment {
         // Set category spinner selection
         try {
             Category itemCategory = Category.valueOf(currentItem.getCategory());
-            views.spinnerCategory.setSelection(itemCategory.ordinal());
+            views.getSpinnerCategory().setSelection(itemCategory.ordinal());
         } catch (IllegalArgumentException e) {
-            views.spinnerCategory.setSelection(Category.DIVERSE.ordinal());
+            views.getSpinnerCategory().setSelection(Category.DIVERSE.ordinal());
         }
     }
 
@@ -209,18 +209,18 @@ public class EditItemDialogFragment extends DialogFragment {
             return;
         }
 
-        String name = views.editTextName.getText().toString().trim();
-        String quantity = views.editTextQuantity.getText().toString().trim();
-        String unit = views.spinnerUnit.getSelectedItem().toString();
-        String notes = views.editTextNotes.getText().toString().trim();
-        String price = views.editTextPrice.getText().toString().trim();
-        boolean onOffer = views.checkBoxOnOffer.isChecked();
+        String name = views.getEditTextName().getText().toString().trim();
+        String quantity = views.getEditTextQuantity().getText().toString().trim();
+        String unit = views.getSpinnerUnit().getSelectedItem().toString();
+        String notes = views.getEditTextNotes().getText().toString().trim();
+        String price = views.getEditTextPrice().getText().toString().trim();
+        boolean onOffer = views.getCheckBoxOnOffer().isChecked();
 
         if (quantity.isEmpty()) {
             quantity = "1";
         }
 
-        Category selectedCategory = Category.values()[views.spinnerCategory.getSelectedItemPosition()];
+        Category selectedCategory = Category.values()[views.getSpinnerCategory().getSelectedItemPosition()];
 
         currentItem.setName(name);
         currentItem.setQuantity(quantity);

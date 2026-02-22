@@ -32,16 +32,44 @@ public class ItemDialogHelper {
     /**
      * Container for all dialog views
      */
+
     public static class ItemDialogViews {
-        public EditText editTextName;
-        public EditText editTextQuantity;
-        public Spinner spinnerUnit;
-        public EditText editTextNotes;
-        public Spinner spinnerCategory;
-        public ListView listViewSuggestions;
-        public CheckBox checkBoxOnOffer;
-        public LinearLayout layoutPrice;
-        public EditText editTextPrice;
+        private EditText editTextName;
+        private EditText editTextQuantity;
+        private Spinner spinnerUnit;
+        private EditText editTextNotes;
+        private Spinner spinnerCategory;
+        private ListView listViewSuggestions;
+        private CheckBox checkBoxOnOffer;
+        private LinearLayout layoutPrice;
+        private EditText editTextPrice;
+
+        public EditText getEditTextName() { return editTextName; }
+        public void setEditTextName(EditText v) { editTextName = v; }
+
+        public EditText getEditTextQuantity() { return editTextQuantity; }
+        public void setEditTextQuantity(EditText v) { editTextQuantity = v; }
+
+        public Spinner getSpinnerUnit() { return spinnerUnit; }
+        public void setSpinnerUnit(Spinner v) { spinnerUnit = v; }
+
+        public EditText getEditTextNotes() { return editTextNotes; }
+        public void setEditTextNotes(EditText v) { editTextNotes = v; }
+
+        public Spinner getSpinnerCategory() { return spinnerCategory; }
+        public void setSpinnerCategory(Spinner v) { spinnerCategory = v; }
+
+        public ListView getListViewSuggestions() { return listViewSuggestions; }
+        public void setListViewSuggestions(ListView v) { listViewSuggestions = v; }
+
+        public CheckBox getCheckBoxOnOffer() { return checkBoxOnOffer; }
+        public void setCheckBoxOnOffer(CheckBox v) { checkBoxOnOffer = v; }
+
+        public LinearLayout getLayoutPrice() { return layoutPrice; }
+        public void setLayoutPrice(LinearLayout v) { layoutPrice = v; }
+
+        public EditText getEditTextPrice() { return editTextPrice; }
+        public void setEditTextPrice(EditText v) { editTextPrice = v; }
     }
 
     /**
@@ -50,15 +78,15 @@ public class ItemDialogHelper {
     public static ItemDialogViews initializeViews(View dialogView) {
         ItemDialogViews views = new ItemDialogViews();
 
-        views.editTextName = dialogView.findViewById(R.id.edit_text_name);
-        views.editTextQuantity = dialogView.findViewById(R.id.edit_text_quantity);
-        views.spinnerUnit = dialogView.findViewById(R.id.spinner_unit);
-        views.editTextNotes = dialogView.findViewById(R.id.edit_text_notes);
-        views.spinnerCategory = dialogView.findViewById(R.id.spinner_category);
-        views.listViewSuggestions = dialogView.findViewById(R.id.listview_suggestions);
-        views.checkBoxOnOffer = dialogView.findViewById(R.id.checkbox_on_offer);
-        views.layoutPrice = dialogView.findViewById(R.id.layout_price);
-        views.editTextPrice = dialogView.findViewById(R.id.edit_text_price);
+        views.setEditTextName(dialogView.findViewById(R.id.edit_text_name));
+        views.setEditTextQuantity(dialogView.findViewById(R.id.edit_text_quantity));
+        views.setSpinnerUnit(dialogView.findViewById(R.id.spinner_unit));
+        views.setEditTextNotes(dialogView.findViewById(R.id.edit_text_notes));
+        views.setSpinnerCategory(dialogView.findViewById(R.id.spinner_category));
+        views.setListViewSuggestions(dialogView.findViewById(R.id.listview_suggestions));
+        views.setCheckBoxOnOffer(dialogView.findViewById(R.id.checkbox_on_offer));
+        views.setLayoutPrice(dialogView.findViewById(R.id.layout_price));
+        views.setEditTextPrice(dialogView.findViewById(R.id.edit_text_price));
 
         return views;
     }
