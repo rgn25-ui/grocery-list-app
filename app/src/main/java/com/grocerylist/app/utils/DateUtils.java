@@ -1,30 +1,23 @@
 package com.grocerylist.app.utils;
 
-import android.annotation.SuppressLint;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
 
+    private static final Locale DANISH = new Locale("da", "DK");
+
     // ===== DATE FORMATTERS =====
-    private static final SimpleDateFormat DISPLAY_DATE_FORMAT =
-            new SimpleDateFormat("dd. MMM yyyy", new Locale("da", "DK"));
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd. MMM yyyy", DANISH)
+                    .withZone(ZoneId.systemDefault());
 
-    private static final SimpleDateFormat DISPLAY_DATE_TIME_FORMAT =
-            new SimpleDateFormat("dd. MMM yyyy 'kl.' HH:mm", new Locale("da", "DK"));
-
-    @SuppressLint("ConstantLocale")
-    private static final SimpleDateFormat API_DATE_FORMAT =
-            new SimpleDateFormat(Constants.DATE_FORMAT_API, Locale.getDefault());
-
-    static {
-        // Set timezone for API format to UTC
-        API_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+    private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("dd. MMM yyyy 'kl.' HH:mm", DANISH)
+                    .withZone(ZoneId.systemDefault());
 
     // ===== PRIVATE CONSTRUCTOR =====
     private DateUtils() {
@@ -44,27 +37,27 @@ public class DateUtils {
     // ===== FORMATTING METHODS =====
 
     /**
-     * Format timestamp to display date (e.g., "Jan 15, 2024")
+     * Format timestamp to display date (e.g., "15. jan 2024")
      * @param timestamp Timestamp in milliseconds
      * @return Formatted date string
      */
     public static String formatDisplayDate(long timestamp) {
-        return DISPLAY_DATE_FORMAT.format(new Date(timestamp));
+        return DISPLAY_DATE_FORMAT.format(Instant.ofEpochMilli(timestamp));
     }
 
     /**
-     * Format timestamp to display date and time (e.g., "Jan 15, 2024 at 02:30 PM")
+     * Format timestamp to display date and time (e.g., "15. jan 2024 kl. 14:30")
      * @param timestamp Timestamp in milliseconds
      * @return Formatted date and time string
      */
     public static String formatDisplayDateTime(long timestamp) {
-        return DISPLAY_DATE_TIME_FORMAT.format(new Date(timestamp));
+        return DISPLAY_DATE_TIME_FORMAT.format(Instant.ofEpochMilli(timestamp));
     }
 
     // ===== RELATIVE TIME METHODS =====
 
     /**
-     * Get relative time string (e.g., "2 minutes ago", "1 hour ago", "Yesterday")
+     * Get relative time string in Danish (e.g., "2 minutter siden", "I går")
      * @param timestamp Timestamp in milliseconds
      * @return Relative time string
      */
@@ -97,24 +90,10 @@ public class DateUtils {
         // Less than a week
         if (diff < TimeUnit.DAYS.toMillis(7)) {
             long days = TimeUnit.MILLISECONDS.toDays(diff);
-            if (days == 1) {
-                return "I går";
-            } else {
-                return days + " dage siden";
-            }
+            return days == 1 ? "I går" : days + " dage siden";
         }
 
         // More than a week, show actual date
         return formatDisplayDate(timestamp);
     }
-
-
-
-
-
-
-
-
-
-
 }
