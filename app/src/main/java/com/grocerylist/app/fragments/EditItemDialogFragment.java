@@ -101,7 +101,7 @@ public class EditItemDialogFragment extends DialogFragment {
                     }
                 });
 
-        return builder.create();
+        return ItemDialogHelper.createWithKeyboardResize(builder);
     }
 
     private GroceryItem createItemFromArguments() {

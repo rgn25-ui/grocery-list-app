@@ -21,6 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.grocerylist.app.adapters.GroceryListAdapter;
+import com.grocerylist.app.importer.ClipboardImport;
 import com.grocerylist.app.models.GroceryItemSuggestions;
 import com.grocerylist.app.models.GroceryList;
 import com.grocerylist.app.ui.dialogs.ListDialogManager;
@@ -267,6 +268,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (menuItem.getItemId() == R.id.action_clear_all) {
             dialogManager.showClearAllDataDialog();
+            return true;
+        } else if (menuItem.getItemId() == R.id.action_import_clipboard) {
+            ClipboardImport.start(this);
             return true;
         }
         return super.onOptionsItemSelected(menuItem);

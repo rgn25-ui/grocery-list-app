@@ -10,6 +10,7 @@ import com.grocerylist.app.models.GroceryList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
@@ -144,6 +145,49 @@ public class GroceryRepository {
                 callback.onError(e);
             }
         }).start();
+    }
+
+    // ===== IMPORT =====
+
+    /**
+     * Imports items, creating new lists first. Runs on one thread so every list exists
+     * before its items are inserted (grocery_items has a foreign key to grocery_lists).
+     * Cloud sync is sequential for the same reason: lists first, then items.
+     */
+    public void importItems(List<GroceryList> newLists, List<GroceryItem> items, Callback<Void> callback) {
+        new Thread(() -> {
+            try {
+                for (GroceryList list : newLists) {
+                    list.setUserId(currentUserId);
+                    localDataSource.insertList(list);
+                }
+                for (GroceryItem item : items) {
+                    localDataSource.insertItem(item);
+                }
+                syncImportToCloud(newLists, items);
+                callback.onSuccess(null);
+            } catch (Exception e) {
+                callback.onError(e);
+            }
+        }).start();
+    }
+
+    private void syncImportToCloud(List<GroceryList> newLists, List<GroceryItem> items) {
+        remoteDataSource.getDisposables().add(
+                Observable.fromIterable(newLists)
+                        .concatMapSingleDelayError(remoteDataSource::createList)
+                        .ignoreElements()
+                        .doOnError(throwable -> android.util.Log.e("GroceryApp", "❌ Import list sync failed", throwable))
+                        .onErrorComplete()
+                        .andThen(Observable.fromIterable(items)
+                                .concatMapSingleDelayError(remoteDataSource::createItem)
+                                .ignoreElements())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                () -> android.util.Log.d("GroceryApp", "✅ Import synced: " + items.size() + " items"),
+                                throwable -> android.util.Log.e("GroceryApp", "❌ Import item sync failed", throwable)
+                        )
+        );
     }
 
     // ===== SYNC OPERATIONS =====

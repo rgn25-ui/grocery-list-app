@@ -63,7 +63,7 @@ public class AddItemDialogFragment extends DialogFragment {
                 })
                 .setNegativeButton(getString(R.string.cancel), null);
 
-        return builder.create();
+        return ItemDialogHelper.createWithKeyboardResize(builder);
     }
 
     private void setupSuggestions() {

@@ -19,6 +19,7 @@ public class GroceryViewModel extends AndroidViewModel {
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<String> syncStatus = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRefreshing = new MutableLiveData<>(false);
+    private final MutableLiveData<Integer> importedCount = new MutableLiveData<>();
 
     public GroceryViewModel(@NonNull Application application) {
         super(application);
@@ -45,6 +46,10 @@ public class GroceryViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getIsRefreshing() {
         return isRefreshing;
+    }
+
+    public LiveData<Integer> getImportedCount() {
+        return importedCount;
     }
 
     public long getLastSyncTime() {
@@ -94,6 +99,22 @@ public class GroceryViewModel extends AndroidViewModel {
 
     public void clearCompletedItems(String listId) {
         repository.clearCompletedItems(listId, createCallback("Failed to clear completed items"));
+    }
+
+    // ===== IMPORT =====
+
+    public void importItems(java.util.List<GroceryList> newLists, java.util.List<GroceryItem> items) {
+        repository.importItems(newLists, items, new GroceryRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                importedCount.postValue(items.size());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                error.postValue("Importen fejlede: " + e.getMessage());
+            }
+        });
     }
 
     // ===== SYNC OPERATIONS =====

@@ -158,9 +158,29 @@
     <!-- DANISH UNITS ARRAY -->
     <string-array name="units_array">
         <item>stk</item>        <!-- Default option -->
+        <item>g</item>
         <item>kg</item>
+        <item>ml</item>
         <item>L</item>
         <item>pakke</item>
     </string-array>
+
+    <!-- Import (share target) -->
+    <string name="import_share_label">Tilføj til indkøbsliste</string>
+    <string name="import_title">Importér indkøbsliste</string>
+    <string name="import_rejected">Importen kan ikke gennemføres:</string>
+    <string name="import_ready">%1$d varer klar til import. Fjern fluebenet ved de varer, du ikke vil have med.</string>
+    <string name="import_add_selected">Tilføj valgte</string>
+    <string name="import_close">Luk</string>
+    <string name="import_target_existing">Tilføjes til %1$s: %2$s</string>
+    <string name="import_target_new">Ny liste – %1$s: %2$s</string>
+    <string name="import_target_choose">Vælg liste</string>
+    <string name="import_new_list_option">Ny liste (%1$s)</string>
+    <string name="import_uncertain">usikker – måske ikke til listen</string>
+    <string name="import_nothing_selected">Ingen varer valgt</string>
+    <string name="import_done">Varer tilføjet: %1$d</string>
+    <string name="import_from_clipboard">Importér fra udklipsholder</string>
+    <string name="import_clipboard_empty">Udklipsholderen er tom. Kopiér JSON-svaret fra ChatGPT først.</string>
+    <string name="import_clipboard_too_long">Udklipsholderen indeholder for meget tekst til en indkøbsliste.</string>
 
 </resources>

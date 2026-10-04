@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.grocerylist.app.R;
 import com.grocerylist.app.models.GroceryItem;
+import com.grocerylist.app.utils.NameFormatter;
 import com.grocerylist.app.utils.QuickItemsManager;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ItemContextMenuHandler {
         List<String> options = buildMenuOptions(groceryItem, isQuickItem);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(groceryItem.getName())
+        builder.setTitle(NameFormatter.capitalizeFirst(groceryItem.getName()))
                 .setItems(options.toArray(new String[0]), (dialog, which) -> handleMenuSelection(groceryItem, which, isQuickItem));
         builder.show();
     }

@@ -1,13 +1,18 @@
 package com.grocerylist.app.ui.dialogs;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.grocerylist.app.R;
 import com.grocerylist.app.adapters.CategorySpinnerAdapter;
@@ -197,12 +202,53 @@ public class ItemDialogHelper {
             if (!suggestions.isEmpty()) {
                 adapter.updateSuggestions(suggestions);
                 listView.setVisibility(View.VISIBLE);
+                fitListViewHeightToContent(listView);
             } else {
                 listView.setVisibility(View.GONE);
             }
         } else {
             listView.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * Sets the ListView height to the total height of its rows. Needed because the dialog
+     * content is in a ScrollView, where a wrap_content ListView only shows one row.
+     * At most 5 suggestions are shown, so the list itself never needs to scroll.
+     */
+    private static void fitListViewHeightToContent(ListView listView) {
+        android.widget.ListAdapter adapter = listView.getAdapter();
+        View parent = (View) listView.getParent();
+        if (adapter == null || parent == null) {
+            return;
+        }
+        int availableWidth = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(Math.max(availableWidth, 0), View.MeasureSpec.EXACTLY);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View row = adapter.getView(i, null, listView);
+            row.measure(widthSpec, heightSpec);
+            totalHeight += row.getMeasuredHeight();
+        }
+        totalHeight += listView.getDividerHeight() * Math.max(adapter.getCount() - 1, 0);
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+    }
+
+    /**
+     * Creates the dialog and lets its window shrink when the keyboard opens,
+     * so the scrollable content can reach every field.
+     */
+    public static Dialog createWithKeyboardResize(AlertDialog.Builder builder) {
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        return dialog;
     }
 
     /**

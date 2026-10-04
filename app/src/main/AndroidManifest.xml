@@ -32,5 +32,18 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.GroceryListApp" />
 
+        <!-- Share target: receives JSON shared as text from e.g. ChatGPT -->
+        <activity
+            android:name=".importer.ImportActivity"
+            android:exported="true"
+            android:label="@string/import_share_label"
+            android:theme="@style/Theme.GroceryListApp">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

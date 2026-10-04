@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.grocerylist.app.R;
 import com.grocerylist.app.models.Category;
 import com.grocerylist.app.models.GroceryItem;
+import com.grocerylist.app.utils.NameFormatter;
 
 /**
  * ViewHolder for displaying individual grocery items
@@ -108,7 +109,7 @@ public class GroceryItemViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void setupItemText(GroceryItem item) {
-        textName.setText(item.getName());
+        textName.setText(NameFormatter.capitalizeFirst(item.getName()));
 
         if (item.isCompleted()) {
             textName.setPaintFlags(textName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
