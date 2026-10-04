@@ -27,6 +27,10 @@ public class GroceryList implements Serializable {
     @SuppressWarnings("unused") // Room uses field via reflection
     private boolean isDeleted;
 
+    // True while a local change has not been confirmed by the backend.
+    // Local only: the backend ignores it, and downloaded rows always arrive with false.
+    private boolean pendingSync;
+
     // Room will use this no-arg constructor
     public GroceryList() {
         this.id = UUID.randomUUID().toString();
@@ -64,4 +68,7 @@ public class GroceryList implements Serializable {
 
     public boolean getIsDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }
+
+    public boolean isPendingSync() { return pendingSync; }
+    public void setPendingSync(boolean pendingSync) { this.pendingSync = pendingSync; }
 }

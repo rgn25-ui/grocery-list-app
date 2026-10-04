@@ -10,12 +10,13 @@ import com.grocerylist.app.models.GroceryList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
- * Main repository coordinating local and remote data sources
- * Delegates work to LocalDataSource, RemoteDataSource, and SyncManager
+ * Main repository coordinating local and remote data sources.
+ * Every change is written locally first and marked as pending; SyncManager uploads pending
+ * changes and only clears the mark when the backend has confirmed them. Deletes are soft
+ * (isDeleted + updatedAt) and are uploaded the same way as any other change.
  */
 public class GroceryRepository {
     private final LocalDataSource localDataSource;
@@ -55,40 +56,26 @@ public class GroceryRepository {
 
     // ===== LIST OPERATIONS =====
 
+    /** Creates, updates or restores (undo) a list. A fresh updatedAt makes this the newest version. */
     public void insertList(GroceryList list, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                list.setUserId(currentUserId);
-                localDataSource.insertList(list);
-                syncListToCloud(list);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> {
+            list.setUserId(currentUserId);
+            list.setUpdatedAt(System.currentTimeMillis());
+            list.setPendingSync(true);
+            localDataSource.insertList(list);
+        }, callback);
     }
 
     public void deleteList(String listId, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                localDataSource.deleteList(listId, System.currentTimeMillis());
-                deleteListFromCloud(listId);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> localDataSource.deleteList(listId, System.currentTimeMillis()), callback);
     }
 
     public void duplicateList(String originalListId, String newName, String category, Callback<String> callback) {
         new Thread(() -> {
             try {
+                // The new list and its items are marked pending by LocalDataSource
                 String newListId = localDataSource.duplicateList(originalListId, newName, category, currentUserId);
-
-                // Sync new list to cloud
-                GroceryList newList = localDataSource.getListById(newListId);
-                syncListToCloud(newList);
-
+                syncManager.requestUpload();
                 callback.onSuccess(newListId);
             } catch (Exception e) {
                 callback.onError(e);
@@ -98,53 +85,29 @@ public class GroceryRepository {
 
     // ===== ITEM OPERATIONS =====
 
+    /** Creates or restores (undo) an item. A fresh updatedAt makes this the newest version. */
     public void insertItem(GroceryItem item, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                localDataSource.insertItem(item);
-                syncItemToCloud(item);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> {
+            item.setUpdatedAt(System.currentTimeMillis());
+            item.setPendingSync(true);
+            localDataSource.insertItem(item);
+        }, callback);
     }
 
     public void updateItem(GroceryItem item, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                item.setUpdatedAt(System.currentTimeMillis());
-                localDataSource.updateItem(item);
-                syncItemToCloud(item);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> {
+            item.setUpdatedAt(System.currentTimeMillis());
+            item.setPendingSync(true);
+            localDataSource.updateItem(item);
+        }, callback);
     }
 
     public void deleteItem(String itemId, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                localDataSource.deleteItem(itemId, System.currentTimeMillis());
-                deleteItemFromCloud(itemId);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> localDataSource.deleteItem(itemId, System.currentTimeMillis()), callback);
     }
 
     public void clearCompletedItems(String listId, Callback<Void> callback) {
-        new Thread(() -> {
-            try {
-                localDataSource.clearCompletedItems(listId);
-                clearCompletedItemsFromCloud(listId);
-                callback.onSuccess(null);
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        }).start();
+        writeLocallyAndUpload(() -> localDataSource.clearCompletedItems(listId, System.currentTimeMillis()), callback);
     }
 
     // ===== IMPORT =====
@@ -152,42 +115,33 @@ public class GroceryRepository {
     /**
      * Imports items, creating new lists first. Runs on one thread so every list exists
      * before its items are inserted (grocery_items has a foreign key to grocery_lists).
-     * Cloud sync is sequential for the same reason: lists first, then items.
+     * The upload also sends lists before items.
      */
     public void importItems(List<GroceryList> newLists, List<GroceryItem> items, Callback<Void> callback) {
+        writeLocallyAndUpload(() -> {
+            for (GroceryList list : newLists) {
+                list.setUserId(currentUserId);
+                list.setPendingSync(true);
+                localDataSource.insertList(list);
+            }
+            for (GroceryItem item : items) {
+                item.setPendingSync(true);
+                localDataSource.insertItem(item);
+            }
+        }, callback);
+    }
+
+    /** Runs a local write on a background thread, then starts uploading pending changes. */
+    private void writeLocallyAndUpload(Runnable localWrite, Callback<Void> callback) {
         new Thread(() -> {
             try {
-                for (GroceryList list : newLists) {
-                    list.setUserId(currentUserId);
-                    localDataSource.insertList(list);
-                }
-                for (GroceryItem item : items) {
-                    localDataSource.insertItem(item);
-                }
-                syncImportToCloud(newLists, items);
+                localWrite.run();
+                syncManager.requestUpload();
                 callback.onSuccess(null);
             } catch (Exception e) {
                 callback.onError(e);
             }
         }).start();
-    }
-
-    private void syncImportToCloud(List<GroceryList> newLists, List<GroceryItem> items) {
-        remoteDataSource.getDisposables().add(
-                Observable.fromIterable(newLists)
-                        .concatMapSingleDelayError(remoteDataSource::createList)
-                        .ignoreElements()
-                        .doOnError(throwable -> android.util.Log.e("GroceryApp", "❌ Import list sync failed", throwable))
-                        .onErrorComplete()
-                        .andThen(Observable.fromIterable(items)
-                                .concatMapSingleDelayError(remoteDataSource::createItem)
-                                .ignoreElements())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(
-                                () -> android.util.Log.d("GroceryApp", "✅ Import synced: " + items.size() + " items"),
-                                throwable -> android.util.Log.e("GroceryApp", "❌ Import item sync failed", throwable)
-                        )
-        );
     }
 
     // ===== SYNC OPERATIONS =====
@@ -226,68 +180,6 @@ public class GroceryRepository {
 
     public long getLastSyncDuration() {
         return syncManager.getLastSyncDuration();
-    }
-
-    // ===== CLOUD SYNC HELPERS =====
-
-    private void syncListToCloud(GroceryList list) {
-        remoteDataSource.getDisposables().add(
-                remoteDataSource.createList(list)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                result -> android.util.Log.d("GroceryApp", "✅ List synced: " + result.getName()),
-                                throwable -> android.util.Log.e("GroceryApp", "❌ Cloud sync failed", throwable)
-                        )
-        );
-    }
-
-    private void syncItemToCloud(GroceryItem item) {
-        remoteDataSource.getDisposables().add(
-                remoteDataSource.createItem(item)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                result -> { /* Successfully synced */ },
-                                throwable -> { /* Handle sync error */ }
-                        )
-        );
-    }
-
-    private void deleteListFromCloud(String listId) {
-        remoteDataSource.getDisposables().add(
-                remoteDataSource.deleteList(listId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                result -> { /* Successfully deleted */ },
-                                throwable -> { /* Handle delete error */ }
-                        )
-        );
-    }
-
-    private void deleteItemFromCloud(String itemId) {
-        remoteDataSource.getDisposables().add(
-                remoteDataSource.deleteItem(itemId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                result -> { /* Successfully deleted */ },
-                                throwable -> { /* Handle delete error */ }
-                        )
-        );
-    }
-
-    private void clearCompletedItemsFromCloud(String listId) {
-        remoteDataSource.getDisposables().add(
-                remoteDataSource.clearCompletedItems(listId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                result -> { /* Successfully cleared */ },
-                                throwable -> { /* Handle error */ }
-                        )
-        );
     }
 
     // ===== CLEAR ALL DATA =====

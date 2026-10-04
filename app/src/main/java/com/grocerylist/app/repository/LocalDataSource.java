@@ -60,8 +60,30 @@ public class LocalDataSource {
         return groceryDao.getItemByIdSync(itemId);
     }
 
-    public void clearCompletedItems(String listId) {
-        groceryDao.clearCompletedItems(listId);
+    public void clearCompletedItems(String listId, long timestamp) {
+        groceryDao.clearCompletedItems(listId, timestamp);
+    }
+
+    public List<String> getAllListIds() {
+        return groceryDao.getAllListIds();
+    }
+
+    // ===== PENDING SYNC =====
+
+    public List<GroceryList> getPendingLists() {
+        return groceryDao.getPendingLists();
+    }
+
+    public List<GroceryItem> getPendingItems() {
+        return groceryDao.getPendingItems();
+    }
+
+    public void markListSynced(String listId, long updatedAt) {
+        groceryDao.markListSynced(listId, updatedAt);
+    }
+
+    public void markItemSynced(String itemId, long updatedAt) {
+        groceryDao.markItemSynced(itemId, updatedAt);
     }
 
     // ===== ITEM COUNT OPERATIONS =====
@@ -90,6 +112,7 @@ public class LocalDataSource {
         newList.setId(newListId);
         newList.setUserId(userId);
         newList.setCategory(category);
+        newList.setPendingSync(true);
         groceryDao.insertList(newList);
 
         for (GroceryItem item : originalItems) {
@@ -99,6 +122,7 @@ public class LocalDataSource {
             newItem.setNotes(item.getNotes());
             newItem.setCategory(item.getCategory());
             newItem.setPriority(item.getPriority());
+            newItem.setPendingSync(true);
             groceryDao.insertItem(newItem);
         }
 

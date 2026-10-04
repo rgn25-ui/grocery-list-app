@@ -43,6 +43,10 @@ public class GroceryItem implements Serializable {
     private boolean onOffer;
     private String price;
 
+    // True while a local change has not been confirmed by the backend.
+    // Local only: the backend ignores it, and downloaded rows always arrive with false.
+    private boolean pendingSync;
+
     // Room will use this no-arg constructor
     public GroceryItem() {
         this.id = UUID.randomUUID().toString();
@@ -110,4 +114,7 @@ public class GroceryItem implements Serializable {
 
     public String getPrice() { return price; }
     public void setPrice(String price) { this.price = price; }
+
+    public boolean isPendingSync() { return pendingSync; }
+    public void setPendingSync(boolean pendingSync) { this.pendingSync = pendingSync; }
 }

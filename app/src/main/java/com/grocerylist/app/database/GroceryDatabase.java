@@ -10,7 +10,7 @@ import com.grocerylist.app.utils.Constants;
 
 @Database(
         entities = {GroceryList.class, GroceryItem.class},
-        version = 4,
+        version = 5, // 5: pendingSync columns. Destructive migration is accepted: data is restored from the backend
         exportSchema = false
 )
 public abstract class GroceryDatabase extends RoomDatabase {
