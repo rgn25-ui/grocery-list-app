@@ -124,7 +124,7 @@ public class SyncManager {
         }
     }
 
-    /** blockingGet() wraps checked exceptions, so the HttpException may be a cause further down. */
+    /** blockingAwait() wraps checked exceptions, so the HttpException may be a cause further down. */
     private static HttpException findHttpException(Throwable throwable) {
         Throwable current = throwable;
         while (current != null) {
