@@ -89,7 +89,7 @@ public class SyncManager {
         android.util.Log.d(TAG, "⬆️ Uploading " + lists.size() + " lists, " + items.size() + " items");
 
         for (GroceryList list : lists) {
-            UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createList(list).blockingGet(),
+            UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createList(list).ignoreElement().blockingAwait(),
                     "list " + list.getName());
             if (outcome == UploadPolicy.Outcome.STOP) {
                 return;
@@ -99,7 +99,7 @@ public class SyncManager {
             }
         }
         for (GroceryItem item : items) {
-            UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createItem(item).blockingGet(),
+            UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createItem(item).ignoreElement().blockingAwait(),
                     "item " + item.getName());
             if (outcome == UploadPolicy.Outcome.STOP) {
                 return;

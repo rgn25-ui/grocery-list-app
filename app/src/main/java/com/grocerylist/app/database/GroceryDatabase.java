@@ -28,7 +28,7 @@ public abstract class GroceryDatabase extends RoomDatabase {
                                     GroceryDatabase.class,
                                     Constants.DATABASE_NAME
                             )
-                            .fallbackToDestructiveMigration() // KEY FIX: Allows database recreation
+                            .fallbackToDestructiveMigration(true) // Recreates the database on version changes; data is restored from the backend
                             .build();
                 }
             }
