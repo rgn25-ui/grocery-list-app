@@ -3,17 +3,18 @@ plugins {
 }
 
 android {
-    namespace 'com.grocerylist.app'
-    compileSdk 36
+    namespace = 'com.grocerylist.app'
+    compileSdk = 36
 
     defaultConfig {
-        applicationId "com.grocerylist.app"
-        minSdk 26
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.grocerylist.app"
+        minSdk = 26
+        // Raising this to 35+ enforces edge-to-edge layout; test the toolbars before doing so
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         vectorDrawables.useSupportLibrary = true
 
@@ -29,19 +30,19 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-            minifyEnabled false
-            shrinkResources false
+            applicationIdSuffix = ".debug"
+            debuggable = true
+            minifyEnabled = false
+            shrinkResources = false
             buildConfigField "String", "API_BASE_URL", '"https://grocery-app-debug.a.run.app/"'
             buildConfigField "boolean", "ENABLE_LOGGING", "true"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         release {
-            minifyEnabled true
-            shrinkResources true
-            debuggable false
+            minifyEnabled = true
+            shrinkResources = true
+            debuggable = false
             buildConfigField "String", "API_BASE_URL", '"https://grocery-app.a.run.app/"'
             buildConfigField "boolean", "ENABLE_LOGGING", "false"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -49,21 +50,21 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
 
     lint {
-        abortOnError false
-        checkReleaseBuilds false
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
         }
