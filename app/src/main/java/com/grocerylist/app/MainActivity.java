@@ -24,6 +24,7 @@ import com.grocerylist.app.adapters.GroceryListAdapter;
 import com.grocerylist.app.importer.ClipboardImport;
 import com.grocerylist.app.models.GroceryItemSuggestions;
 import com.grocerylist.app.models.GroceryList;
+import com.grocerylist.app.ui.SyncStatusLine;
 import com.grocerylist.app.ui.dialogs.ListDialogManager;
 import com.grocerylist.app.viewmodel.GroceryViewModel;
 
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabAddList;
     private SwipeRefreshLayout swipeRefresh;
     private TextView textSyncInfo;
-    private LoadingMessageManager loadingMessageManager;
+    private SyncStatusLine syncStatusLine;
 
     // Dialog Manager
     private ListDialogManager dialogManager;
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         setupViews();
         setupToolbar();
-        setupLoadingMessages();
         setupDialogManager();
         setupViewModel();
         setupRecyclerView();
@@ -89,12 +89,6 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.all_lists_with_icon, getString(R.string.all_lists)));
         }
-    }
-
-    private void setupLoadingMessages() {
-        View loadingOverlay = findViewById(R.id.loading_overlay);
-        TextView loadingMessage = findViewById(R.id.loading_message);
-        loadingMessageManager = new LoadingMessageManager(loadingOverlay, loadingMessage);
     }
 
     private void setupDialogManager() {
@@ -170,13 +164,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(GroceryViewModel.class);
+        syncStatusLine = new SyncStatusLine(textSyncInfo, viewModel::getLastSyncInfo);
 
         viewModel.getAllLists().observe(this, this::onListsChanged);
         viewModel.getError().observe(this, this::onError);
         viewModel.getSyncStatus().observe(this, this::onSyncStatus);
         viewModel.getIsRefreshing().observe(this, this::onRefreshingChanged);
-
-        updateSyncInfo();
+        viewModel.getPendingChangeCount().observe(this, syncStatusLine::setPendingCount);
     }
 
     private void onListsChanged(List<GroceryList> lists) {
@@ -203,12 +197,7 @@ public class MainActivity extends AppCompatActivity {
             swipeRefresh.setRefreshing(refreshing);
         }
 
-        if (refreshing) {
-            loadingMessageManager.show();
-        } else {
-            loadingMessageManager.hide();
-            updateSyncInfo();
-        }
+        syncStatusLine.setSyncing(refreshing);
     }
 
     private void setupFab() {
@@ -278,15 +267,15 @@ public class MainActivity extends AppCompatActivity {
 
     // ===== HELPER METHODS =====
 
-    private void updateSyncInfo() {
-        if (textSyncInfo != null) {
-            textSyncInfo.setText(viewModel.getLastSyncInfo());
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        updateSyncInfo();
+        syncStatusLine.refresh();
+    }
+
+    @Override
+    protected void onDestroy() {
+        syncStatusLine.stop();
+        super.onDestroy();
     }
 }

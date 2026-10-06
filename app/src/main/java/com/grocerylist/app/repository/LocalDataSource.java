@@ -78,6 +78,10 @@ public class LocalDataSource {
         return groceryDao.getPendingItems();
     }
 
+    public LiveData<Integer> getPendingChangeCount() {
+        return groceryDao.getPendingChangeCount();
+    }
+
     public void markListSynced(String listId, long updatedAt) {
         groceryDao.markListSynced(listId, updatedAt);
     }

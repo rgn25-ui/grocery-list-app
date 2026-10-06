@@ -11,27 +11,26 @@ import com.grocerylist.app.utils.Constants;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.HttpException;
 
 /**
  * Manages synchronization between local and remote data sources.
- * Upload: every local change is marked pending and stays pending until the backend confirms it,
- * so a failed upload is retried on the next change or sync instead of being lost.
+ * Upload: every local change is marked pending and stays pending until the backend confirms it.
+ * Uploads run in UploadWorker (WorkManager), so they complete even if the app is closed, and are
+ * retried with backoff when the network or the backend is unavailable.
  * Download: cloud data is merged in with timestamp-based conflict resolution.
  */
 public class SyncManager {
     private static final String TAG = "GrocerySync";
     private static final String PREF_LAST_SYNC_DURATION = "last_sync_duration";
     private static final long MIN_SYNC_INTERVAL_MS = 20000; // 20 seconds
+    // Shared by all SyncManager instances (the app's and UploadWorker's), so uploads never run in parallel
+    private static final Object UPLOAD_LOCK = new Object();
+    private final Context appContext;
     private final LocalDataSource localDataSource;
     private final RemoteDataSource remoteDataSource;
     private final SharedPreferences preferences;
-
-    // Coalesces upload requests: at most one upload loop runs, and requests made meanwhile trigger one more pass
-    private final AtomicBoolean uploadRunning = new AtomicBoolean(false);
-    private final AtomicBoolean uploadRequested = new AtomicBoolean(false);
 
     public interface OnSyncListener {
         void onSuccess();
@@ -39,6 +38,7 @@ public class SyncManager {
     }
 
     public SyncManager(LocalDataSource localDataSource, RemoteDataSource remoteDataSource, Context context) {
+        this.appContext = context.getApplicationContext();
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.preferences = context.getSharedPreferences(
@@ -49,42 +49,29 @@ public class SyncManager {
 
     // ===== UPLOAD OF PENDING CHANGES =====
 
-    /** Uploads pending changes in the background. Cheap to call after every local change. */
+    /** Schedules an upload of pending changes. Cheap to call after every local change. */
     public void requestUpload() {
-        uploadRequested.set(true);
-        startUploadLoopIfIdle();
-    }
-
-    private void startUploadLoopIfIdle() {
-        if (uploadRunning.compareAndSet(false, true)) {
-            new Thread(this::runUploadLoop).start();
-        }
-    }
-
-    private void runUploadLoop() {
-        try {
-            while (uploadRequested.getAndSet(false)) {
-                uploadPendingChanges();
-            }
-        } finally {
-            uploadRunning.set(false);
-        }
-        // A request that arrived after the last check would otherwise wait for the next change
-        if (uploadRequested.get()) {
-            startUploadLoopIfIdle();
-        }
+        UploadWorker.enqueue(appContext);
     }
 
     /**
      * Uploads pending lists, then pending items, so an item's list exists in the backend first.
      * Stops at the first network error, rate limit or server error and leaves the rest pending.
-     * Synchronized so the upload loop and a full sync never send the same changes in parallel.
+     * Locked so the worker and a full sync never send the same changes in parallel.
+     *
+     * @return true if everything pending was handled, false if it stopped and should be retried
      */
-    synchronized void uploadPendingChanges() {
+    boolean uploadPendingChanges() {
+        synchronized (UPLOAD_LOCK) {
+            return uploadPendingChangesLocked();
+        }
+    }
+
+    private boolean uploadPendingChangesLocked() {
         List<GroceryList> lists = localDataSource.getPendingLists();
         List<GroceryItem> items = localDataSource.getPendingItems();
         if (lists.isEmpty() && items.isEmpty()) {
-            return;
+            return true;
         }
         android.util.Log.d(TAG, "⬆️ Uploading " + lists.size() + " lists, " + items.size() + " items");
 
@@ -92,7 +79,7 @@ public class SyncManager {
             UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createList(list).ignoreElement().blockingAwait(),
                     "list " + list.getName());
             if (outcome == UploadPolicy.Outcome.STOP) {
-                return;
+                return false;
             }
             if (outcome == UploadPolicy.Outcome.SENT) {
                 localDataSource.markListSynced(list.getId(), list.getUpdatedAt());
@@ -102,13 +89,14 @@ public class SyncManager {
             UploadPolicy.Outcome outcome = send(() -> remoteDataSource.createItem(item).ignoreElement().blockingAwait(),
                     "item " + item.getName());
             if (outcome == UploadPolicy.Outcome.STOP) {
-                return;
+                return false;
             }
             if (outcome == UploadPolicy.Outcome.SENT) {
                 localDataSource.markItemSynced(item.getId(), item.getUpdatedAt());
             }
         }
         android.util.Log.d(TAG, "✅ Upload completed");
+        return true;
     }
 
     private UploadPolicy.Outcome send(Runnable call, String description) {
@@ -165,7 +153,10 @@ public class SyncManager {
             long startTime = System.currentTimeMillis();
             android.util.Log.d(TAG, "🔄 Starting full sync...");
             try {
-                uploadPendingChanges();
+                if (!uploadPendingChanges()) {
+                    // Leave the rest to the worker, which retries with backoff
+                    requestUpload();
+                }
 
                 SyncData syncData = remoteDataSource.getAllData(userId).blockingGet();
                 long networkTime = System.currentTimeMillis() - startTime;

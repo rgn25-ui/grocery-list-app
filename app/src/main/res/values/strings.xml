@@ -183,4 +183,11 @@
     <string name="import_clipboard_empty">Udklipsholderen er tom. Kopiér JSON-svaret fra ChatGPT først.</string>
     <string name="import_clipboard_too_long">Udklipsholderen indeholder for meget tekst til en indkøbsliste.</string>
 
+    <!-- Sync status line -->
+    <string name="sync_status_syncing">🔄 Synkroniserer …</string>
+    <plurals name="sync_status_pending">
+        <item quantity="one">⏳ %d ændring venter på at blive sendt</item>
+        <item quantity="other">⏳ %d ændringer venter på at blive sendt</item>
+    </plurals>
+
 </resources>

@@ -123,7 +123,7 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <!-- Sync Info Display -->
+        <!-- Sync status line: last sync, pending changes or sync in progress -->
         <TextView
             android:id="@+id/text_sync_info"
             android:layout_width="match_parent"
@@ -145,8 +145,5 @@
             android:contentDescription="Add item" />
 
     </LinearLayout>
-
-    <!-- Loading Overlay - MUST BE LAST so it appears on top -->
-    <include layout="@layout/loading_overlay" />
 
 </FrameLayout>

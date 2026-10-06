@@ -74,5 +74,10 @@ public interface GroceryDao {
     @Query("UPDATE grocery_items SET pendingSync = 0 WHERE id = :itemId AND updatedAt = :updatedAt")
     void markItemSynced(String itemId, long updatedAt);
 
+    // Number of local changes not yet confirmed by the backend (for the status line)
+    @Query("SELECT (SELECT COUNT(*) FROM grocery_lists WHERE pendingSync = 1) " +
+           "+ (SELECT COUNT(*) FROM grocery_items WHERE pendingSync = 1)")
+    LiveData<Integer> getPendingChangeCount();
+
 
 }

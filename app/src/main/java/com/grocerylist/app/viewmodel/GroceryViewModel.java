@@ -40,6 +40,10 @@ public class GroceryViewModel extends AndroidViewModel {
         return error;
     }
 
+    public LiveData<Integer> getPendingChangeCount() {
+        return repository.getPendingChangeCount();
+    }
+
     public LiveData<String> getSyncStatus() {
         return syncStatus;
     }
@@ -104,7 +108,7 @@ public class GroceryViewModel extends AndroidViewModel {
     // ===== IMPORT =====
 
     public void importItems(java.util.List<GroceryList> newLists, java.util.List<GroceryItem> items) {
-        repository.importItems(newLists, items, new GroceryRepository.Callback<Void>() {
+        repository.importItems(newLists, items, new GroceryRepository.Callback<>() {
             @Override
             public void onSuccess(Void result) {
                 importedCount.postValue(items.size());
@@ -130,7 +134,7 @@ public class GroceryViewModel extends AndroidViewModel {
     private void performSync(boolean forceFull) {
         isRefreshing.postValue(true);
 
-        GroceryRepository.Callback<Void> callback = new GroceryRepository.Callback<Void>() {
+        GroceryRepository.Callback<Void> callback = new GroceryRepository.Callback<>() {
             @Override
             public void onSuccess(Void result) {
                 isRefreshing.postValue(false);
@@ -171,7 +175,7 @@ public class GroceryViewModel extends AndroidViewModel {
         isRefreshing.postValue(true);
         syncStatus.postValue("Clearing all data...");
 
-        repository.clearAllData(new GroceryRepository.Callback<Void>() {
+        repository.clearAllData(new GroceryRepository.Callback<>() {
             @Override
             public void onSuccess(Void result) {
                 syncStatus.postValue("All data cleared successfully");
@@ -192,7 +196,7 @@ public class GroceryViewModel extends AndroidViewModel {
      * Creates a standard callback that posts errors to LiveData
      */
     private <T> GroceryRepository.Callback<T> createCallback(String errorPrefix) {
-        return new GroceryRepository.Callback<T>() {
+        return new GroceryRepository.Callback<>() {
             @Override
             public void onSuccess(T result) {
                 // Success - silent by design

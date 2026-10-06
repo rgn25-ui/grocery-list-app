@@ -1,7 +1,6 @@
 package com.grocerylist.app;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.SpannableString;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +24,7 @@ import com.grocerylist.app.fragments.AddItemDialogFragment;
 import com.grocerylist.app.fragments.EditItemDialogFragment;
 import com.grocerylist.app.models.GroceryItem;
 import com.grocerylist.app.models.ListCategory;
+import com.grocerylist.app.ui.SyncStatusLine;
 import com.grocerylist.app.ui.handlers.ItemContextMenuHandler;
 import com.grocerylist.app.ui.handlers.ItemSwipeHandler;
 import com.grocerylist.app.ui.handlers.QuickItemsUIManager;
@@ -54,7 +54,7 @@ public class ListDetailActivity extends AppCompatActivity {
     private FloatingActionButton fabAddItem;
     private SwipeRefreshLayout swipeRefresh;
     private TextView textSyncInfo;
-    private LoadingMessageManager loadingMessageManager;
+    private SyncStatusLine syncStatusLine;
 
     // Handlers
     private ItemContextMenuHandler contextMenuHandler;
@@ -89,11 +89,6 @@ public class ListDetailActivity extends AppCompatActivity {
         fabAddItem = findViewById(R.id.fab_add_item);
         swipeRefresh = findViewById(R.id.swipe_refresh);
         textSyncInfo = findViewById(R.id.text_sync_info);
-
-        // Setup loading messages
-        View loadingOverlay = findViewById(R.id.loading_overlay);
-        TextView loadingMessage = findViewById(R.id.loading_message);
-        loadingMessageManager = new LoadingMessageManager(loadingOverlay, loadingMessage);
     }
 
     private void setupToolbar() {
@@ -113,13 +108,13 @@ public class ListDetailActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(GroceryViewModel.class);
+        syncStatusLine = new SyncStatusLine(textSyncInfo, viewModel::getLastSyncInfo);
 
         viewModel.getItemsForList(currentListId).observe(this, this::onItemsChanged);
         viewModel.getError().observe(this, this::onError);
         viewModel.getSyncStatus().observe(this, this::onSyncStatus);
         viewModel.getIsRefreshing().observe(this, this::onRefreshingChanged);
-
-        updateSyncInfo();
+        viewModel.getPendingChangeCount().observe(this, syncStatusLine::setPendingCount);
     }
 
     private void onItemsChanged(List<GroceryItem> items) {
@@ -146,12 +141,7 @@ public class ListDetailActivity extends AppCompatActivity {
             swipeRefresh.setRefreshing(refreshing);
         }
 
-        if (refreshing) {
-            loadingMessageManager.show();
-        } else {
-            loadingMessageManager.hide();
-            updateSyncInfo();
-        }
+        syncStatusLine.setSyncing(refreshing);
     }
 
     private void setupRecyclerView() {
@@ -252,8 +242,8 @@ public class ListDetailActivity extends AppCompatActivity {
                 viewModel.forceFullSync();
 
                 // Fallback: Stop refreshing after 5 seconds if viewModel doesn't stop it
-                new Handler().postDelayed(() -> {
-                    if (swipeRefresh != null && swipeRefresh.isRefreshing()) {
+                swipeRefresh.postDelayed(() -> {
+                    if (swipeRefresh.isRefreshing()) {
                         swipeRefresh.setRefreshing(false);
                     }
                 }, SYNC_FALLBACK_TIMEOUT_MS);
@@ -314,17 +304,11 @@ public class ListDetailActivity extends AppCompatActivity {
         builder.setItems(sortOptions, (dialog, which) -> {
             adapter.setSortType(which);
 
-            String feedbackMessage;
-            switch (which) {
-                case 0:
-                    feedbackMessage = getString(R.string.sorted_alphabetically);
-                    break;
-                case 1:
-                    feedbackMessage = getString(R.string.sorted_by_rema1000);
-                    break;
-                default:
-                    feedbackMessage = getString(R.string.sorted);
-            }
+            String feedbackMessage = switch (which) {
+                case 0 -> getString(R.string.sorted_alphabetically);
+                case 1 -> getString(R.string.sorted_by_rema1000);
+                default -> getString(R.string.sorted);
+            };
 
             Snackbar.make(recyclerViewItems, feedbackMessage, Snackbar.LENGTH_SHORT).show();
         });
@@ -364,15 +348,15 @@ public class ListDetailActivity extends AppCompatActivity {
 
     // ===== HELPER METHODS =====
 
-    private void updateSyncInfo() {
-        if (textSyncInfo != null) {
-            textSyncInfo.setText(viewModel.getLastSyncInfo());
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        updateSyncInfo();
+        syncStatusLine.refresh();
+    }
+
+    @Override
+    protected void onDestroy() {
+        syncStatusLine.stop();
+        super.onDestroy();
     }
 }

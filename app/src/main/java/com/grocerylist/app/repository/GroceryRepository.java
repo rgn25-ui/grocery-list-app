@@ -14,8 +14,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * Main repository coordinating local and remote data sources.
- * Every change is written locally first and marked as pending; SyncManager uploads pending
- * changes and only clears the mark when the backend has confirmed them. Deletes are soft
+ * Every change is written locally first and marked as pending; SyncManager schedules an upload
+ * (WorkManager) and the mark is only cleared when the backend has confirmed the change. Deletes are soft
  * (isDeleted + updatedAt) and are uploaded the same way as any other change.
  */
 public class GroceryRepository {
@@ -52,6 +52,10 @@ public class GroceryRepository {
 
     public LiveData<Integer> getItemCountForList(String listId) {
         return localDataSource.getItemCountForList(listId);
+    }
+
+    public LiveData<Integer> getPendingChangeCount() {
+        return localDataSource.getPendingChangeCount();
     }
 
     // ===== LIST OPERATIONS =====

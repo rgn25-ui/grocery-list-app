@@ -1,14 +1,25 @@
-package com.grocerylist.app;
+package com.grocerylist.app.ui;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.widget.TextView;
 
-import java.util.Random;
+import com.grocerylist.app.R;
 
-public class LoadingMessageManager {
-    private static final String[] MESSAGES = {
+import java.util.Random;
+import java.util.function.Supplier;
+
+/**
+ * The status line at the bottom of the main and list screens. Replaces the full-screen loading
+ * overlay: the app works locally, so syncing should be visible but never block.
+ * Shows, in order of priority:
+ * - a sync in progress ("Synkroniserer ..."), switching to the fun messages if it takes a while,
+ * - local changes not yet confirmed by the backend ("2 ændringer venter på at blive sendt"),
+ * - otherwise the time of the last sync.
+ */
+public class SyncStatusLine {
+    private static final String[] FUN_MESSAGES = {
             "Serveren øver sig på imaginære tal...",
             "Serveren laver sine morgenstrækninger...",
             "Serveren overtaler skyen til at komme ned fra himlen...",
@@ -66,74 +77,74 @@ public class LoadingMessageManager {
             "Serveren skriver på sin nye bog: Et spændingsfald kommer sjældent alene"
     };
 
-    private static final long SHOW_DELAY_MS = 2000; // Show after 2 seconds
-    private static final long MESSAGE_ROTATION_MS = 4000; // Change message every 4 seconds
+    private static final long FUN_MESSAGE_DELAY_MS = 2000; // a sync shorter than this just says "Synkroniserer"
+    private static final long FUN_MESSAGE_ROTATION_MS = 4000;
 
-    private final View overlayView;
-    private final TextView messageTextView;
-    private final Handler handler;
-    private final Random random;
-    private Runnable messageUpdater;
-    private Runnable showDelayRunnable;
-    private boolean isShowing = false;
+    private final TextView textView;
+    private final Supplier<String> lastSyncInfo;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Random random = new Random();
 
-    public LoadingMessageManager(View overlayView, TextView messageTextView) {
-        this.overlayView = overlayView;
-        this.messageTextView = messageTextView;
-        this.handler = new Handler(Looper.getMainLooper());
-        this.random = new Random();
-    }
+    private int pendingCount;
+    private boolean syncing;
+    private String funMessage; // null until the sync has taken a while
 
-    public void show() {
-        if (isShowing) return;
-
-        isShowing = true;
-
-        // Delay showing the overlay by 2 seconds
-        showDelayRunnable = () -> {
-            if (isShowing) { // Only show if not already hidden
-                overlayView.setVisibility(View.VISIBLE);
-                updateMessage();
-                startMessageRotation();
+    private final Runnable showNextFunMessage = new Runnable() {
+        @Override
+        public void run() {
+            if (syncing) {
+                funMessage = FUN_MESSAGES[random.nextInt(FUN_MESSAGES.length)];
+                render();
+                handler.postDelayed(this, FUN_MESSAGE_ROTATION_MS);
             }
-        };
-
-        handler.postDelayed(showDelayRunnable, SHOW_DELAY_MS);
-    }
-
-    public void hide() {
-        isShowing = false;
-
-        // Cancel the delayed show if it hasn't happened yet
-        if (showDelayRunnable != null) {
-            handler.removeCallbacks(showDelayRunnable);
         }
+    };
 
-        overlayView.setVisibility(View.GONE);
-        stopMessageRotation();
+    public SyncStatusLine(TextView textView, Supplier<String> lastSyncInfo) {
+        this.textView = textView;
+        this.lastSyncInfo = lastSyncInfo;
+        render();
     }
 
-    private void updateMessage() {
-        String message = MESSAGES[random.nextInt(MESSAGES.length)];
-        messageTextView.setText(message);
+    public void setPendingCount(Integer count) {
+        pendingCount = count != null ? count : 0;
+        render();
     }
 
-    private void startMessageRotation() {
-        messageUpdater = new Runnable() {
-            @Override
-            public void run() {
-                if (isShowing) {
-                    updateMessage();
-                    handler.postDelayed(this, MESSAGE_ROTATION_MS);
-                }
-            }
-        };
-        handler.postDelayed(messageUpdater, MESSAGE_ROTATION_MS);
+    public void setSyncing(boolean isSyncing) {
+        if (isSyncing == syncing) {
+            return;
+        }
+        syncing = isSyncing;
+        funMessage = null;
+        handler.removeCallbacks(showNextFunMessage);
+        if (syncing) {
+            handler.postDelayed(showNextFunMessage, FUN_MESSAGE_DELAY_MS);
+        }
+        render();
     }
 
-    private void stopMessageRotation() {
-        if (messageUpdater != null) {
-            handler.removeCallbacks(messageUpdater);
+    /** Re-renders, e.g. in onResume, so "last synced" is up to date. */
+    public void refresh() {
+        render();
+    }
+
+    /** Call from onDestroy to stop the message rotation. */
+    public void stop() {
+        handler.removeCallbacks(showNextFunMessage);
+    }
+
+    private void render() {
+        Context context = textView.getContext();
+        if (syncing) {
+            textView.setText(funMessage != null
+                    ? "🔄 " + funMessage
+                    : context.getString(R.string.sync_status_syncing));
+        } else if (pendingCount > 0) {
+            textView.setText(context.getResources()
+                    .getQuantityString(R.plurals.sync_status_pending, pendingCount, pendingCount));
+        } else {
+            textView.setText(lastSyncInfo.get());
         }
     }
 }
