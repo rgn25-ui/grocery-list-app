@@ -36,7 +36,6 @@ android {
             shrinkResources = false
             buildConfigField "String", "API_BASE_URL", '"https://grocery-app-debug.a.run.app/"'
             buildConfigField "boolean", "ENABLE_LOGGING", "true"
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         release {
