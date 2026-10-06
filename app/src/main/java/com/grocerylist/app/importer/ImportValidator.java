@@ -33,7 +33,7 @@ final class ImportValidator {
     private static final Set<String> LIST_KEYS = setOf("name", "store", "items");
     private static final Set<String> ITEM_KEYS = setOf("name", "quantity", "unit", "note", "price", "onOffer");
     private static final Set<String> UNITS = setOf("g", "kg", "ml", "l");
-    private static final Locale DANISH = new Locale("da", "DK");
+    private static final Locale DANISH = Locale.forLanguageTag("da-DK");
 
     private final List<String> errors = new ArrayList<>();
     private final List<String> warnings = new ArrayList<>();

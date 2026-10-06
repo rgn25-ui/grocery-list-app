@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
 
-    private static final Locale DANISH = new Locale("da", "DK");
+    private static final Locale DANISH = Locale.forLanguageTag("da-DK");
 
     // ===== DATE FORMATTERS =====
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =

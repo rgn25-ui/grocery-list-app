@@ -243,6 +243,7 @@ public class ItemDialogHelper {
      * Creates the dialog and lets its window shrink when the keyboard opens,
      * so the scrollable content can reach every field.
      */
+    @SuppressWarnings("deprecation") // SOFT_INPUT_ADJUST_RESIZE still works for dialogs; the insets API is the long-term replacement
     public static Dialog createWithKeyboardResize(AlertDialog.Builder builder) {
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
