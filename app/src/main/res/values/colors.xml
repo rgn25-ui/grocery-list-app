@@ -125,5 +125,11 @@
     <color name="chip_text">#1976D2</color>
 	<color name="quick_items_button_bg">#2196F3</color>
 
+    <!-- Sync status line: light backgrounds with dark text in the same hue (contrast above 7:1) -->
+    <color name="sync_status_ok_bg">#E8F5E9</color>
+    <color name="sync_status_ok_text">#1B5E20</color>
+    <color name="sync_status_pending_bg">#FFEBEE</color>
+    <color name="sync_status_pending_text">#B71C1C</color>
+
 
 </resources>

@@ -5,9 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.grocerylist.app.R;
 
 import java.util.Random;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -17,6 +20,8 @@ import java.util.function.Supplier;
  * - a sync in progress ("Synkroniserer ..."), switching to the fun messages if it takes a while,
  * - local changes not yet confirmed by the backend ("2 ændringer venter på at blive sendt"),
  * - otherwise the time of the last sync.
+ * The background is green only when this phone is known to match the server in both directions:
+ * no pending changes, no sync in progress, and the last sync succeeded. Otherwise it is red.
  */
 public class SyncStatusLine {
     private static final String[] FUN_MESSAGES = {
@@ -82,12 +87,14 @@ public class SyncStatusLine {
 
     private final TextView textView;
     private final Supplier<String> lastSyncInfo;
+    private final LongSupplier lastSyncTime;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Random random = new Random();
 
     private int pendingCount;
     private boolean syncing;
     private String funMessage; // null until the sync has taken a while
+    private boolean lastSyncFailed;
 
     private final Runnable showNextFunMessage = new Runnable() {
         @Override
@@ -100,9 +107,10 @@ public class SyncStatusLine {
         }
     };
 
-    public SyncStatusLine(TextView textView, Supplier<String> lastSyncInfo) {
+    public SyncStatusLine(TextView textView, Supplier<String> lastSyncInfo, LongSupplier lastSyncTime) {
         this.textView = textView;
         this.lastSyncInfo = lastSyncInfo;
+        this.lastSyncTime = lastSyncTime;
         render();
     }
 
@@ -124,6 +132,12 @@ public class SyncStatusLine {
         render();
     }
 
+    /** Called when a sync finishes, so a failed sync does not show as green. */
+    public void setLastSyncFailed(Boolean failed) {
+        lastSyncFailed = Boolean.TRUE.equals(failed);
+        render();
+    }
+
     /** Re-renders, e.g. in onResume, so "last synced" is up to date. */
     public void refresh() {
         render();
@@ -136,6 +150,8 @@ public class SyncStatusLine {
 
     private void render() {
         Context context = textView.getContext();
+
+        // Text: what is happening right now
         if (syncing) {
             textView.setText(funMessage != null
                     ? "🔄 " + funMessage
@@ -146,5 +162,19 @@ public class SyncStatusLine {
         } else {
             textView.setText(lastSyncInfo.get());
         }
+
+        // Colour: green only when this phone is known to match the server in both directions
+        boolean inSync = !syncing && !lastSyncFailed && pendingCount == 0 && lastSyncTime.getAsLong() > 0;
+        if (inSync) {
+            applyColors(R.color.sync_status_ok_bg, R.color.sync_status_ok_text);
+        } else {
+            applyColors(R.color.sync_status_pending_bg, R.color.sync_status_pending_text);
+        }
+    }
+
+    private void applyColors(int backgroundRes, int textRes) {
+        Context context = textView.getContext();
+        textView.setBackgroundColor(ContextCompat.getColor(context, backgroundRes));
+        textView.setTextColor(ContextCompat.getColor(context, textRes));
     }
 }

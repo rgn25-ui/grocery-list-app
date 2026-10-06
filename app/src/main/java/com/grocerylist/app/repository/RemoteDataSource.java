@@ -52,27 +52,17 @@ public class RemoteDataSource {
     }
 
     // ===== LIST OPERATIONS =====
+    // Creates and updates (upsert). Deletes are sent as updates with isDeleted = true.
 
     public Single<GroceryList> createList(GroceryList list) {
         return apiService.createList(list);
     }
 
-    public Single<Void> deleteList(String listId) {
-        return apiService.deleteList(listId);
-    }
-
     // ===== ITEM OPERATIONS =====
+    // Creates and updates (upsert). Deletes are sent as updates with isDeleted = true.
 
     public Single<GroceryItem> createItem(GroceryItem item) {
         return apiService.createItem(item);
-    }
-
-    public Single<Void> deleteItem(String itemId) {
-        return apiService.deleteItem(itemId);
-    }
-
-    public Single<Void> clearCompletedItems(String listId) {
-        return apiService.clearCompletedItems(listId);
     }
 
     // ===== ADMIN OPERATIONS =====

@@ -1,6 +1,8 @@
 package com.grocerylist.app.utils;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -13,10 +15,6 @@ public class DateUtils {
     // ===== DATE FORMATTERS =====
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("dd. MMM yyyy", DANISH)
-                    .withZone(ZoneId.systemDefault());
-
-    private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("dd. MMM yyyy 'kl.' HH:mm", DANISH)
                     .withZone(ZoneId.systemDefault());
 
     // ===== PRIVATE CONSTRUCTOR =====
@@ -43,15 +41,6 @@ public class DateUtils {
      */
     public static String formatDisplayDate(long timestamp) {
         return DISPLAY_DATE_FORMAT.format(Instant.ofEpochMilli(timestamp));
-    }
-
-    /**
-     * Format timestamp to display date and time (e.g., "15. jan 2024 kl. 14:30")
-     * @param timestamp Timestamp in milliseconds
-     * @return Formatted date and time string
-     */
-    public static String formatDisplayDateTime(long timestamp) {
-        return DISPLAY_DATE_TIME_FORMAT.format(Instant.ofEpochMilli(timestamp));
     }
 
     // ===== RELATIVE TIME METHODS =====
@@ -96,4 +85,42 @@ public class DateUtils {
         // More than a week, show actual date
         return formatDisplayDate(timestamp);
     }
+
+    // ===== SYNC TIME =====
+
+    private static final DateTimeFormatter TIME_FORMAT =
+            DateTimeFormatter.ofPattern("HH:mm", DANISH);
+
+    private static final DateTimeFormatter DAY_MONTH_FORMAT =
+            DateTimeFormatter.ofPattern("d. MMM", DANISH);
+
+    private static final DateTimeFormatter DAY_MONTH_YEAR_FORMAT =
+            DateTimeFormatter.ofPattern("d. MMM yyyy", DANISH);
+
+    /**
+     * Short time for the sync status line: "i dag kl. 17:42", "i går kl. 09:10",
+     * "6. okt. kl. 17:42", and the year only when it is not the current year.
+     */
+    public static String formatSyncTime(long timestamp) {
+        return formatSyncTime(timestamp, System.currentTimeMillis(), ZoneId.systemDefault());
+    }
+
+    static String formatSyncTime(long timestamp, long now, ZoneId zone) {
+        ZonedDateTime time = Instant.ofEpochMilli(timestamp).atZone(zone);
+        LocalDate date = time.toLocalDate();
+        LocalDate today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate();
+        String clock = TIME_FORMAT.format(time);
+
+        if (date.equals(today)) {
+            return "i dag kl. " + clock;
+        }
+        if (date.equals(today.minusDays(1))) {
+            return "i går kl. " + clock;
+        }
+        if (date.getYear() == today.getYear()) {
+            return DAY_MONTH_FORMAT.format(time) + " kl. " + clock;
+        }
+        return DAY_MONTH_YEAR_FORMAT.format(time) + " kl. " + clock;
+    }
+
 }

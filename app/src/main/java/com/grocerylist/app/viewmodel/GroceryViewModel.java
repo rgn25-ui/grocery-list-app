@@ -20,6 +20,7 @@ public class GroceryViewModel extends AndroidViewModel {
     private final MutableLiveData<String> syncStatus = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRefreshing = new MutableLiveData<>(false);
     private final MutableLiveData<Integer> importedCount = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> lastSyncFailed = new MutableLiveData<>(false);
 
     public GroceryViewModel(@NonNull Application application) {
         super(application);
@@ -40,10 +41,6 @@ public class GroceryViewModel extends AndroidViewModel {
         return error;
     }
 
-    public LiveData<Integer> getPendingChangeCount() {
-        return repository.getPendingChangeCount();
-    }
-
     public LiveData<String> getSyncStatus() {
         return syncStatus;
     }
@@ -54,6 +51,16 @@ public class GroceryViewModel extends AndroidViewModel {
 
     public LiveData<Integer> getImportedCount() {
         return importedCount;
+    }
+
+    /** Number of local changes not yet confirmed by the backend. */
+    public LiveData<Integer> getPendingChangeCount() {
+        return repository.getPendingChangeCount();
+    }
+
+    /** True if the most recent sync failed (e.g. offline), so the status line does not show green. */
+    public LiveData<Boolean> getLastSyncFailed() {
+        return lastSyncFailed;
     }
 
     public long getLastSyncTime() {
@@ -137,11 +144,13 @@ public class GroceryViewModel extends AndroidViewModel {
         GroceryRepository.Callback<Void> callback = new GroceryRepository.Callback<>() {
             @Override
             public void onSuccess(Void result) {
+                lastSyncFailed.postValue(false);
                 isRefreshing.postValue(false);
             }
 
             @Override
             public void onError(Exception e) {
+                lastSyncFailed.postValue(true);
                 error.postValue("Sync failed: " + e.getMessage());
                 isRefreshing.postValue(false);
             }
@@ -162,7 +171,7 @@ public class GroceryViewModel extends AndroidViewModel {
             return getString(R.string.never_synced);
         }
 
-        String dateTime = com.grocerylist.app.utils.DateUtils.formatDisplayDateTime(syncTime);
+        String dateTime = com.grocerylist.app.utils.DateUtils.formatSyncTime(syncTime);
         @SuppressLint("DefaultLocale")
         String durationStr = duration < 1000 ? duration + "ms" : String.format("%.1fs", duration / 1000.0);
 

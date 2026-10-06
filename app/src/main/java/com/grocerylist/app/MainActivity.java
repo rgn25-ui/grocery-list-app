@@ -164,13 +164,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(GroceryViewModel.class);
-        syncStatusLine = new SyncStatusLine(textSyncInfo, viewModel::getLastSyncInfo);
+        syncStatusLine = new SyncStatusLine(textSyncInfo, viewModel::getLastSyncInfo, viewModel::getLastSyncTime);
 
         viewModel.getAllLists().observe(this, this::onListsChanged);
         viewModel.getError().observe(this, this::onError);
         viewModel.getSyncStatus().observe(this, this::onSyncStatus);
         viewModel.getIsRefreshing().observe(this, this::onRefreshingChanged);
         viewModel.getPendingChangeCount().observe(this, syncStatusLine::setPendingCount);
+        viewModel.getLastSyncFailed().observe(this, syncStatusLine::setLastSyncFailed);
     }
 
     private void onListsChanged(List<GroceryList> lists) {
