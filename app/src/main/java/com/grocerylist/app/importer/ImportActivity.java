@@ -48,6 +48,7 @@ public class ImportActivity extends AppCompatActivity {
     private static final int COLOR_OFFER = 0xFFD32F2F;
     private static final int COLOR_MUTED = 0xFF616161;
     private static final String UNCERTAIN_NOTE = "usikker";
+    private static final Locale DANISH = Locale.forLanguageTag("da-DK");
 
     private GroceryViewModel viewModel;
     private ImportResult result;
@@ -160,7 +161,7 @@ public class ImportActivity extends AppCompatActivity {
 
         if (list.getName() == null) {
             header.setText(R.string.import_target_choose);
-            section.listSpinner = createListSpinner(storeFor(list));
+            section.listSpinner = createListSpinner(list);
             container.addView(section.listSpinner);
         } else if (matched != null) {
             header.setText(getString(R.string.import_target_existing,
@@ -181,20 +182,48 @@ public class ImportActivity extends AppCompatActivity {
         sections.add(section);
     }
 
-    /** Existing lists (most recently updated first), then "Ny liste". */
-    private Spinner createListSpinner(ListCategory storeForNewList) {
+    /**
+     * Existing lists (most recently updated first), then "Ny liste".
+     * Preselected when a store was named: the most recent list for that store, or "Ny liste" if there is none.
+     * Without a store: the most recent list.
+     */
+    private Spinner createListSpinner(ImportList list) {
         List<String> labels = new ArrayList<>();
-        for (GroceryList list : existingLists) {
-            labels.add(storeName(list.getCategory()) + ": " + list.getName());
+        for (GroceryList existing : existingLists) {
+            labels.add(storeName(existing.getCategory()) + ": " + existing.getName());
         }
-        labels.add(getString(R.string.import_new_list_option, storeForNewList.getDisplayName()));
+        labels.add(getString(R.string.import_new_list_option, storeFor(list).getDisplayName()));
+        int newListPosition = labels.size() - 1;
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Spinner spinner = new Spinner(this);
         spinner.setAdapter(adapter);
-        spinner.setSelection(0);
+        int preselected = 0;
+        if (list.getStore() != null) {
+            int match = findListForStore(list.getStore());
+            preselected = match >= 0 ? match : newListPosition;
+        }
+        spinner.setSelection(preselected);
         return spinner;
+    }
+
+    /**
+     * Index of the most recently updated list for the store: its store (shown as "Rema:" / "Coop:")
+     * matches, or its name contains the store name, e.g. "Rema 1000". -1 if there is none.
+     */
+    private int findListForStore(ListCategory store) {
+        String storeName = store.getDisplayName().toLowerCase(DANISH);
+        for (int i = 0; i < existingLists.size(); i++) {
+            GroceryList existing = existingLists.get(i);
+            boolean sameStore = store.name().equals(existing.getCategory());
+            boolean nameMentionsStore = existing.getName() != null
+                    && existing.getName().toLowerCase(DANISH).contains(storeName);
+            if (sameStore || nameMentionsStore) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /** Name and amount, offer and price, and the note on its own line - "usikker" highlighted. */

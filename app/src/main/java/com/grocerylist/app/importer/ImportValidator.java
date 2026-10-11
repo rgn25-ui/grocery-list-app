@@ -207,7 +207,8 @@ final class ImportValidator {
         if (errors.size() > errorsBefore) {
             return null;
         }
-        return new ImportItem(name, quantity, unit, note, price, onOffer);
+        // In the app a price is only shown for items on offer, so a stated price means the item is on offer
+        return new ImportItem(name, quantity, unit, note, price, onOffer || price != null);
     }
 
     /** Merges equal lines (same name and unit, same details); keeps differing ones and warns. */

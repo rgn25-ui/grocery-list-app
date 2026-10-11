@@ -275,4 +275,13 @@ public class ImportParserTest {
         assertEquals("kg", ImportItemMapper.mapUnit("kg"));
         assertEquals("ml", ImportItemMapper.mapUnit("ml"));
     }
+
+    @Test
+    public void statedPrice_marksItemAsOnOffer() {
+        ImportResult result = parse("{\"version\":1,\"lists\":[{\"items\":["
+                + "{\"name\":\"æg\",\"price\":20},{\"name\":\"mælk\"}]}]}");
+        assertTrue(result.isValid());
+        assertTrue(result.getLists().get(0).getItems().get(0).isOnOffer());
+        assertFalse(result.getLists().get(0).getItems().get(1).isOnOffer());
+    }
 }
